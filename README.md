@@ -1,6 +1,9 @@
 # Welcome
 core package, as an inter-lingua to work with sim, FTS, and potentially other simulation packages.
 
+can see some more [documentation](http://equalapriori.github.io/sim-utils/).
+- (which should be up to date for the `main` branch)
+
 Current planned sketch:
 IO:
 - Files ←→ dictionaries
