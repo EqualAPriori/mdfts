@@ -17,7 +17,7 @@ Moleculetype dictionary
   - Beadtype names, bonds, maybe: alternative comb definitions/helper functions
 - Tosim
 - Topfts
-- *paramrameters* for bead types should be in force field. Topology simply directly uses bead names
+- *parameters* for bead types should be in force field. Topology simply directly uses bead names
 
 Core Tools?
 - mapping
