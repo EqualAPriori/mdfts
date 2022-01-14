@@ -1,2 +1,13 @@
 # pyc files
 *.pyc
+__pycache__/
+
+# build/distribution/packaging-related files
+# see: https://stackoverflow.com/questions/3719243/best-practices-for-adding-gitignore-file-for-python-projects
+build/
+develop-eggs/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+.installed.cfg
