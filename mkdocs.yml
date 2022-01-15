@@ -4,6 +4,7 @@ theme:
 plugins:
   - mkdocs-jupyter
   - search
+  - codehilite
   - gen-files:
       scripts:
       - docs/gen_ref_nav.py
