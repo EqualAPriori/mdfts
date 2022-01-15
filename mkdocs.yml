@@ -3,3 +3,26 @@ theme:
   name: material
 plugins:
   - mkdocs-jupyter
+  - search
+  - gen-files:
+      scripts:
+      - docs/gen_ref_nav.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          setup_commands:
+          - import sys
+          - sys.path.append("docs")
+          selection:
+            new_path_syntax: yes
+          rendering:
+            show_source: true
+      watch:
+        - src/mdfts
+nav:
+    - "Home": index.md
+    - "Reference": reference/
+
