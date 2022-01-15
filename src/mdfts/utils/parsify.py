@@ -218,11 +218,17 @@ def parse_entry(entry, delim=";"):
 
 def parse_potential_entry(entry, nbody, store_dict=None, prefix=""):
     """Parse a line entry for a potential to create
-    Parameters
-    ----------
-    entry : str,list,dict
-    nbody : # atoms involved to specify filters for this potential
 
+    Args:
+        entry (str, list, dict): entry
+        nbody (int): # atoms involved to specify filters for this potential
+        store_dict (dict-like, optional): store results into a given dict instead of returnign new dict. Defaults to None.
+        prefix (str, optional): prefix labeling the type of potential. Defaults to "".
+
+    Returns:
+        dict: the potential entry, fully expanded into a dictionary
+    """
+    """
     Notes
     -----
     This only does the initial shorthand conversions.
