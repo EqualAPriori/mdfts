@@ -1,0 +1,10 @@
+# requirements for icing, i.e. not critical for running code
+
+# TESTING
+pytest
+
+# DOCUMENTATION
+mkdocs
+mkdocs-gen-files
+mkdocs-literate-nav
+mkdocs-jupyter
