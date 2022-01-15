@@ -33,7 +33,7 @@ def create_yaml():
             a ruamel.yaml YAML() object w/ utf-8 encoding, unicode encoding, OrderedDict representation
 
     Note:
-    https://stackoverflow.com/questions/49669236/ruamel-yaml-bad-dump
+        https://stackoverflow.com/questions/49669236/ruamel-yaml-bad-dump
     """
     yaml = YAML.YAML()
     yaml.explicit_start = True
