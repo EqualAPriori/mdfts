@@ -1,7 +1,7 @@
 # Welcome
 core package, as an inter-lingua to work with sim, FTS, and potentially other simulation packages.
 
-can see some more [documentation](http://equalapriori.github.io/mdfts/).
+can see detailed code [documentation](https://equalapriori.github.io/mdfts/reference/ToC/).
 - (which should be up to date for the `main` branch)
 
 Current planned sketch:
