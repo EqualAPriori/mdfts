@@ -24,5 +24,7 @@ plugins:
         - src/mdfts
 nav:
     - "Home": index.md
-    - "Reference": reference/
+    - "Reference": 
+        - "At a glance": reference/ToC.md
+        - "Src": reference/
 
