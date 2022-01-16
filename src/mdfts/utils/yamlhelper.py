@@ -7,12 +7,12 @@ Typical usage example:
     yml.load()
     yml.save_dict('filename',mydict)
 
-Doc:
->>> save_dict('test.yaml',{'asdf':1,'qwer':2},header='testheader')
->>> load('test.yaml')
-ordereddict([('asdf', 1), ('qwer', 2)])
->>> type(load('test.yaml'))
-<class 'ruamel.yaml.comments.CommentedMap'>
+Examples:
+    >>> save_dict('test.yaml',{'asdf':1,'qwer':2},header='testheader')
+    >>> load('test.yaml')
+    ordereddict([('asdf', 1), ('qwer', 2)])
+    >>> type(load('test.yaml'))
+    <class 'ruamel.yaml.comments.CommentedMap'>
 
 Todo:
     Consider adding representers for numpy floats, ints, arrays. may have to be careful about bit version. dig into Representer code a bit more.

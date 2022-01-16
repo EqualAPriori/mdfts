@@ -1,6 +1,21 @@
 site_name: MDFTS
+site_description: "Interface for integrated particle and field simulations"
+site_url: "https://equalapriori.github.io/mdfts/"
+repo_url: "https://github.com/EqualAPriori/mdfts"
+repo_name: "mdfts"
+site_dir: "site"
+
 theme:
   name: material
+    
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.tasklist
+  - codehilite
+
 plugins:
   - mkdocs-jupyter
   - search
@@ -22,6 +37,7 @@ plugins:
             show_source: true
       watch:
         - src/mdfts
+
 nav:
     - "Home": index.md
     - "Reference": 
