@@ -70,3 +70,8 @@ nav:
         - "At a glance": reference/ToC.md
         - "Src": reference/
 
+extra:
+  social:
+  - icon: fontawesome/brands/github
+    link: https://github.com/EqualAPriori/mdfts
+

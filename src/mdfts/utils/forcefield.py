@@ -2,13 +2,13 @@
 In future, can include general helpers and function expressions, e.g. so that it's easy to construct an openmm custom force.
 
 Todo:
-    1) save forcefield out in shorthand as well, b/c the processed file is quite verbose and not quite readable, plus still has some funky whitespace issues. Essentially, mainly want to dump specific potentials in one-line format
+    1. [ ] save forcefield out in shorthand as well, b/c the processed file is quite verbose and not quite readable, plus still has some funky whitespace issues. Essentially, mainly want to dump specific potentials in one-line format
     
-    2) checks/tests/validation?
+    2. [ ] checks/tests/validation?
     
-    3) convert defaults sections, not just the params sections
+    3. [ ] convert defaults sections, not just the params sections
 
-    4) give some examples on how parameters are expanded. think about how to serialize/deserialize from a system.
+    4. [ ] give some examples on how parameters are expanded. think about how to serialize/deserialize from a system.
 
 Attributes:
     ff_types (list): names of potential types
@@ -159,8 +159,6 @@ def parse_default(ffdict, outdict, section, field, fixable=True, defaultdefault=
     Notes:
         Need to distinguish b/t parameters that can be optimized/toggled, and those that can't.
 
-    Todo:
-        `section` argument doesn't seem to be used... be careful!
     """
     if section in ffdict:
         if field in ffdict[section]:
