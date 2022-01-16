@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>None</loc>
-         <lastmod>2022-01-15</lastmod>
+         <loc>https://equalapriori.github.io/mdfts/</loc>
+         <lastmod>2022-01-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://equalapriori.github.io/mdfts/gen_ref_nav/</loc>
+         <lastmod>2022-01-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>None</loc>
-         <lastmod>2022-01-15</lastmod>
+         <lastmod>2022-01-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-01-15</lastmod>
+         <loc>https://equalapriori.github.io/mdfts/reference/ToC/</loc>
+         <lastmod>2022-01-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-01-15</lastmod>
+         <loc>https://equalapriori.github.io/mdfts/reference/mdfts/utils/parsify/</loc>
+         <lastmod>2022-01-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>None</loc>
-         <lastmod>2022-01-15</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>None</loc>
-         <lastmod>2022-01-15</lastmod>
+         <loc>https://equalapriori.github.io/mdfts/reference/mdfts/utils/yamlhelper/</loc>
+         <lastmod>2022-01-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
