@@ -2,19 +2,45 @@ site_name: MDFTS
 site_description: "Interface for integrated particle and field simulations"
 site_url: "https://equalapriori.github.io/mdfts/"
 repo_url: "https://github.com/EqualAPriori/mdfts"
-repo_name: "mdfts"
+repo_name: "mdfts" 
 site_dir: "site"
 
 theme:
   name: material
-    
+  features:
+  - navigation.tabs
+  - navigation.top 
+  - navigation.sections
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    toggle:
+      icon: material/weather-sunny
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: black
+    accent: lime
+    toggle:
+      icon: material/weather-night
+      name: Switch to light mode
+
 markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.tabbed
   - pymdownx.tasklist
-  - codehilite
+  - pymdownx.mark
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+# Other potential extensions:
+# - pymdownx.tabbed
+# - pymdownx.tasklist
+# - data
+# - latex
+# - many more: https://squidfunk.github.io/mkdocs-material/reference/lists/#using-definition-lists
+
 
 plugins:
   - mkdocs-jupyter

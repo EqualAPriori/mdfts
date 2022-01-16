@@ -8,7 +8,7 @@ In the future, we may also provide special utilities to run simulation campaigns
 
 ---
 !!! note
-    An example admonition
+    An example note section
 
 
 --8<-- "README.md"
