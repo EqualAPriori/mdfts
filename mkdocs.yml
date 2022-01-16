@@ -34,6 +34,8 @@ markdown_extensions:
   - pymdownx.mark
   - pymdownx.highlight
   - pymdownx.inlinehilite
+  - toc:
+      toc_depth: 3
 # Other potential extensions:
 # - data
 # - latex
