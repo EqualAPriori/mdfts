@@ -1,0 +1,1744 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interface for integrated particle and field simulations">
+      
+      
+      
+        <link rel="canonical" href="https://equalapriori.github.io/mdfts/reference/mdfts/utils/mapper/">
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.6">
+    
+    
+      
+        <title>mapper.py - MDFTS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.cd566b2a.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mdfts.utils.mapper" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="MDFTS" class="md-header__button md-logo" aria-label="MDFTS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MDFTS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              mapper.py
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EqualAPriori/mdfts/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mdfts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../ToC/" class="md-tabs__link md-tabs__link--active">
+        Reference
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="MDFTS" class="md-nav__button md-logo" aria-label="MDFTS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    MDFTS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EqualAPriori/mdfts/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mdfts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ToC/" class="md-nav__link">
+        At a glance
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2">
+          Src
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Src" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Src
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2_1" type="checkbox" id="__nav_2_2_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2_1">
+          mdfts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="mdfts" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          mdfts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2_1_1" type="checkbox" id="__nav_2_2_1_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2_1_1">
+          utils
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="utils" data-md-level="4">
+        <label class="md-nav__title" for="__nav_2_2_1_1">
+          <span class="md-nav__icon md-icon"></span>
+          utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../forcefield/" class="md-nav__link">
+        forcefield.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          mapper.py
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        mapper.py
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper" class="md-nav__link">
+    mdfts.utils.mapper
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.test_singlechain" class="md-nav__link">
+    test_singlechain
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_pdb_mapping" class="md-nav__link">
+    generate_pdb_mapping()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_single_mapping" class="md-nav__link">
+    generate_single_mapping()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_single_mapping_shorthand" class="md-nav__link">
+    generate_single_mapping_shorthand()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_system_mapping" class="md-nav__link">
+    generate_system_mapping()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.map_multiple" class="md-nav__link">
+    map_multiple()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.map_single" class="md-nav__link">
+    map_single()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.process_mapping_system" class="md-nav__link">
+    process_mapping_system()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.process_mappingfile" class="md-nav__link">
+    process_mappingfile()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.process_pdbfile" class="md-nav__link">
+    process_pdbfile()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parsify/" class="md-nav__link">
+        parsify.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topologify/" class="md-nav__link">
+        topologify.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../yamlhelper/" class="md-nav__link">
+        yamlhelper.py
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper" class="md-nav__link">
+    mdfts.utils.mapper
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.test_singlechain" class="md-nav__link">
+    test_singlechain
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_pdb_mapping" class="md-nav__link">
+    generate_pdb_mapping()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_single_mapping" class="md-nav__link">
+    generate_single_mapping()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_single_mapping_shorthand" class="md-nav__link">
+    generate_single_mapping_shorthand()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.generate_system_mapping" class="md-nav__link">
+    generate_system_mapping()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.map_multiple" class="md-nav__link">
+    map_multiple()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.map_single" class="md-nav__link">
+    map_single()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.process_mapping_system" class="md-nav__link">
+    process_mapping_system()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.process_mappingfile" class="md-nav__link">
+    process_mappingfile()
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mdfts.utils.mapper.process_pdbfile" class="md-nav__link">
+    process_pdbfile()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/EqualAPriori/mdfts/edit/master/docs/src/mdfts/utils/mapper.py" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+  <h1>mapper.py</h1>
+
+<div class="doc doc-object doc-module">
+
+<a id="mdfts.utils.mapper"></a>
+    <div class="doc doc-contents first">
+
+      <p>Utilities for defining and carrying out mappings
+Envisioned workflow:
+  1) Map single chain:
+       python mapper.py singlechain_pdb params -prefix desiredprefix -single
+       and repeat for each individual system. should save out mapped pdb, mapping pdb, and yaml file for the chain
+  2) Map system:
+       python mapper.py system_dcd params -top top_for_pdb -prefix desiredprefix -system
+       technically I've also allowed for a shorthand s.t. can skip the single chain intermediary above if desired</p>
+<p>instead of setting up a whole new system file... can also take multiple arguments from command line to build up the system! even easier?</p>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+  <div class="doc doc-object doc-attribute">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.test_singlechain">
+<code class="highlight language-python"><span class="n">test_singlechain</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>print('--- maping pS ---')
+filename = 'pS20.pdb'
+filemap = 'pS20.yaml'
+t = mdtraj.load(filename)
+prefix,mode = 'pS20','shortest'
+prefix,mode = 'pS20','pdb'
+aa_indices_in_cg, cg_site_of_aa, shorthand = process_mappingfile(filemap,mode)
+traj_mapped = map_single(t,aa_indices_in_cg)
+traj_mapping = generate_pdb_mapping(t, cg_site_of_aa)
+save(prefix, aa_indices_in_cg, cg_site_of_aa, traj_mapped = traj_mapped, traj_mapping = traj_mapping, shorthand=shorthand)</p>
+    </div>
+
+  </div>
+
+
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.generate_pdb_mapping">
+<code class="highlight language-python"><span class="n">generate_pdb_mapping</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>take in a cg_site_of_aa mapping array, and generate a new mapping topology for the chain, annotated with cgbead site
+Parameters</p>
+<hr />
+<p>traj : mdtraj trajectory
+mapping : array
+    should be cg_site_of_aa array format, of a single chain</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_pdb_mapping</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    take in a cg_site_of_aa mapping array, and generate a new mapping topology for the chain, annotated with cgbead site</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    traj : mdtraj trajectory</span>
+<span class="sd">    mapping : array</span>
+<span class="sd">        should be cg_site_of_aa array format, of a single chain</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping_top</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Topology</span><span class="p">()</span>
+    <span class="n">ch_previous</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sites</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">site_to_res_map</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">ia</span><span class="p">,</span> <span class="n">atom</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atoms</span><span class="p">):</span>
+        <span class="n">cg_beadname</span><span class="p">,</span> <span class="n">cg_identifier</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">ia</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ia</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># if atom.chain != ch_previous: #techincally I envision this only working for single chain first</span>
+            <span class="n">ch_previous</span> <span class="o">=</span> <span class="n">mapping_top</span><span class="o">.</span><span class="n">add_chain</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">chain</span> <span class="o">!=</span> <span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">chain</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Multiple chains detected, not implemented yet&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cg_identifier</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>  <span class="c1"># need to add a new residue</span>
+            <span class="n">sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cg_identifier</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">mapping_top</span><span class="o">.</span><span class="n">add_residue</span><span class="p">(</span><span class="n">cg_beadname</span><span class="p">,</span> <span class="n">ch_previous</span><span class="p">)</span>
+            <span class="n">site_to_res_map</span><span class="p">[</span><span class="n">cg_identifier</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">site_to_res_map</span><span class="p">[</span><span class="n">cg_identifier</span><span class="p">]</span>
+        <span class="n">new_atom</span> <span class="o">=</span> <span class="n">mapping_top</span><span class="o">.</span><span class="n">add_atom</span><span class="p">(</span><span class="n">atom</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">atom</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">bonds</span><span class="p">:</span>
+        <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">mapping_top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">bond</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="n">mapping_top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">bond</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">mapping_top</span><span class="o">.</span><span class="n">add_bond</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">)</span>
+
+    <span class="n">mapping_traj</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">xyz</span><span class="p">,</span> <span class="n">mapping_top</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mapping_traj</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.generate_single_mapping">
+<code class="highlight language-python"><span class="n">generate_single_mapping</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Generate mapping for a single chain</p>
+<h4 id="mdfts.utils.mapper.generate_single_mapping--parameters">Parameters</h4>
+<p>mode : str or None
+    can be a [#atoms x 1] array to map from atom to CG site (i.e. cg site of atom i). Each entry should be tuple (cgbeadname,identifier)
+extra : several
+    a mapping array of one of the accepted formats, or a topology for use with 121 or 1res21</p>
+<h4 id="mdfts.utils.mapper.generate_single_mapping--return">Return</h4>
+<p>aa_indices_in_cg : list of lists
+    aa_indices_in_cg[i] returns list of aa indices in cg bead i
+chain_indices_of_cg : list
+    chain_id[i] returns the chain index of CG bead i. Hopefully is contiguous...</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_single_mapping</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate mapping for a single chain</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mode : str or None</span>
+<span class="sd">        can be a [#atoms x 1] array to map from atom to CG site (i.e. cg site of atom i). Each entry should be tuple (cgbeadname,identifier)</span>
+<span class="sd">    extra : several</span>
+<span class="sd">        a mapping array of one of the accepted formats, or a topology for use with 121 or 1res21</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    aa_indices_in_cg : list of lists</span>
+<span class="sd">        aa_indices_in_cg[i] returns list of aa indices in cg bead i</span>
+<span class="sd">    chain_indices_of_cg : list</span>
+<span class="sd">        chain_id[i] returns the chain index of CG bead i. Hopefully is contiguous...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Topology</span><span class="p">):</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">extra</span>
+            <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;121&quot;</span><span class="p">,</span> <span class="s2">&quot;1to1&quot;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;doing one-to-one mapping of AA bead to CG bead&quot;</span><span class="p">)</span>
+                <span class="n">cg_bead_names_len</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">n_atoms</span>
+                <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">index</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">top</span><span class="o">.</span><span class="n">atoms</span><span class="p">]</span>
+                <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">top</span><span class="o">.</span><span class="n">atoms</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;1res21&quot;</span><span class="p">,</span> <span class="s2">&quot;1resto1&quot;</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;doing one residue to one CG bead&quot;</span><span class="p">)</span>
+                <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">atoms</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">top</span><span class="o">.</span><span class="n">residues</span>
+                <span class="p">]</span>
+                <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">top</span><span class="o">.</span><span class="n">atoms</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cg_site_of_aa&quot;</span><span class="p">]:</span>
+            <span class="c1"># if len(list(extra)) != top.n_atoms:</span>
+            <span class="c1">#    raise ValueError(&#39;Fed in mapping array of CG site for each atom, should have dimensions #atoms x 1&#39;)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;using full custom mapping, extra input is [#atoms x 1] array specifying the CG site ID of each atom&quot;</span>
+            <span class="p">)</span>
+            <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">extra</span>
+            <span class="n">cgsites</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># ordered in sequence of occurrence</span>
+            <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="p">(</span>
+                <span class="n">cgsite</span>
+            <span class="p">)</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="n">extra</span>
+            <span class="p">):</span>  <span class="c1"># this is only really efficient if a single molecule, since it doesn&#39;t assume contiguity.</span>
+                <span class="n">cgsite_identifier</span> <span class="o">=</span> <span class="n">cgsite</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">cgsite_name</span> <span class="o">=</span> <span class="n">cgsite</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">cgsite_identifier</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cgsites</span><span class="p">:</span>
+                    <span class="n">cgsites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cgsite_identifier</span><span class="p">)</span>
+                    <span class="n">indices_in_cg</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">ii</span>
+                        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">siteID</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">siteID</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">cgsite_identifier</span>
+                    <span class="p">]</span>
+                    <span class="n">aa_indices_in_cg</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cgsite_name</span><span class="p">,</span> <span class="n">indices_in_cg</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aa_indices_in_cg&quot;</span><span class="p">]:</span>
+            <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="n">extra</span>
+            <span class="n">num_aa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">aa_indices_in_cg</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+            <span class="n">tmp</span> <span class="o">=</span> <span class="p">[[]]</span> <span class="o">*</span> <span class="n">num_aa</span>
+            <span class="n">aa_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_aa</span><span class="p">)</span>
+            <span class="n">nbead_so_far</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">isite</span><span class="p">,</span> <span class="n">site_entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">aa_indices_in_cg</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">site_entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">tmp</span><span class="p">[</span><span class="n">nbead_so_far</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">site_entry</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">isite</span><span class="p">)</span>
+                    <span class="n">aa_indices</span><span class="p">[</span><span class="n">nbead_so_far</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+                    <span class="n">nbead_so_far</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># next, need to sort</span>
+            <span class="n">sorted_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">aa_indices</span><span class="p">)</span>
+            <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="p">[</span><span class="n">tmp</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">sorted_indices</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;contiguous&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;using compact mapping mode assuming contiguous sequencing of AA beads. Extra input should be array of # AA beads in each CG bead&quot;</span>
+            <span class="p">)</span>
+            <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">generate_single_mapping_shorthand</span><span class="p">(</span>
+                <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="n">extra</span>
+            <span class="p">)</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            aa_indices_in_cg = []</span>
+<span class="sd">            chain_index_of_cg = []</span>
+<span class="sd">            nbead_so_far = 0</span>
+<span class="sd">            for num_in_cgbead in extra:</span>
+<span class="sd">                indices_in_cg = list(np.arange(nbead_so_far,nbead_so_far + num_in_cgbead)) </span>
+<span class="sd">                aa_indices_in_cg.append( indices_in_cg )</span>
+<span class="sd">                nbead_so_far += num_in_cgbead</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+        <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;simplest&quot;</span><span class="p">,</span> <span class="s2">&quot;compactest&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;using most compact mapping mode assuming contiguous sequencing of AA beads. Extra input should be array of # AA beads in each CG bead&quot;</span>
+            <span class="p">)</span>
+            <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">generate_single_mapping_shorthand</span><span class="p">(</span>
+                <span class="s2">&quot;simplest&quot;</span><span class="p">,</span> <span class="n">extra</span>
+            <span class="p">)</span>
+
+        <span class="c1"># elif isinstance(mode,(np.ndarray,list)):</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;non-string mode not implemented yet&quot;</span><span class="p">)</span>
+
+    <span class="c1"># sanity check. This function meant to be used on a single chain (molecule), so all the chain indices better be the same one!</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra</span><span class="p">,</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Topology</span><span class="p">):</span>
+        <span class="n">chain_indices_of_cg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cg_index</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">aa_indices_in_cg</span><span class="p">):</span>
+            <span class="n">indices_in_cg</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">chain_indices_in_cgbead</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">ii</span><span class="p">)</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="n">indices_in_cg</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">chain_index</span> <span class="o">==</span> <span class="n">chain_indices_in_cgbead</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">chain_index</span> <span class="ow">in</span> <span class="n">chain_indices_in_cgbead</span>
+            <span class="p">):</span>
+                <span class="n">chain_indices_of_cg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain_indices_in_cgbead</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;chain indices </span><span class="si">{}</span><span class="s2"> of atoms in cg bead </span><span class="si">{}</span><span class="s2"> span more than one chain!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">chain_indices_in_cgbead</span><span class="p">,</span> <span class="n">cg_index</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+    <span class="c1"># return aa_indices_in_cg, residue_indices_of_cg, chain_indices_of_cg</span>
+    <span class="k">return</span> <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.generate_single_mapping_shorthand">
+<code class="highlight language-python"><span class="n">generate_single_mapping_shorthand</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">shorthand</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>A helper function to generate requisite data structure for generate_single_mapping() from a more compact notation.</p>
+<h4 id="mdfts.utils.mapper.generate_single_mapping_shorthand--parameters">Parameters</h4>
+<p>shorthand : str or list
+mode = option</p>
+<h4 id="mdfts.utils.mapper.generate_single_mapping_shorthand--returns">Returns</h4>
+<p>aa_indices_in_cg : list of lists
+    aa_indices_in_cg[i] returns list of aa indices in cg bead i
+cg_site_of_aa : list
+    cg_site_of_aa[i] returns the cg site that atom i maps to, for us in generate_single_mapping</p>
+<h4 id="mdfts.utils.mapper.generate_single_mapping_shorthand--notes">Notes</h4>
+<p>Shorthand versions:
+1) assuming AA atoms are in contiguous blocks for mapping
+   [ naa1, naa2, ... ] each entry is # AA atoms in the next CG bead
+2) ... smiles? some other graph format? 
+3) I guess can technically wrap this up into generate_single_mapping</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_single_mapping_shorthand</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">shorthand</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A helper function to generate requisite data structure for generate_single_mapping() from a more compact notation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shorthand : str or list</span>
+<span class="sd">    mode = option</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    aa_indices_in_cg : list of lists</span>
+<span class="sd">        aa_indices_in_cg[i] returns list of aa indices in cg bead i</span>
+<span class="sd">    cg_site_of_aa : list</span>
+<span class="sd">        cg_site_of_aa[i] returns the cg site that atom i maps to, for us in generate_single_mapping</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Shorthand versions:</span>
+<span class="sd">    1) assuming AA atoms are in contiguous blocks for mapping</span>
+<span class="sd">       [ naa1, naa2, ... ] each entry is # AA atoms in the next CG bead</span>
+<span class="sd">    2) ... smiles? some other graph format? </span>
+<span class="sd">    3) I guess can technically wrap this up into generate_single_mapping</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;contiguous&quot;</span><span class="p">,</span> <span class="s2">&quot;short&quot;</span><span class="p">]:</span>
+        <span class="c1"># expect data to be of the form [(cg_bead_name, n_aa_in_cg)]</span>
+        <span class="c1"># cg_site_of_aa = [ ii for ii,num_in_cgbead in enumerate(shorthand) for jj in range(num_in_cgbead) ]</span>
+        <span class="n">nbead_so_far</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cgindex</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shorthand</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="p">),</span> <span class="s2">&quot;mapping entry for simple shorthand should be an integer or a 2-element tuple&quot;</span>
+                <span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">num_in_cgbead</span> <span class="o">=</span> <span class="n">entry</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">num_in_cgbead</span> <span class="o">=</span> <span class="s2">&quot;DMY&quot;</span><span class="p">,</span> <span class="n">entry</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unrecognized mapping entry for simple shorthand: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nbead_so_far</span><span class="p">,</span> <span class="n">nbead_so_far</span> <span class="o">+</span> <span class="n">num_in_cgbead</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">aa_indices_in_cg</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">indices</span><span class="p">))</span>
+            <span class="n">nbead_so_far</span> <span class="o">+=</span> <span class="n">num_in_cgbead</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_in_cgbead</span><span class="p">):</span>
+                <span class="n">cg_site_of_aa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">cgindex</span><span class="p">))</span>
+        <span class="c1"># cg_site_of_aa = []</span>
+        <span class="c1"># aa_indices_in_cg = []</span>
+        <span class="c1"># for ii,cgbead in enumerate(shorthand):</span>
+        <span class="c1">#    aa_indices_in_cg.append( [ii]*cgbead )</span>
+        <span class="c1">#    for jj in range( cgbead ):</span>
+        <span class="c1">#        cg_site_of_aa.append(ii)</span>
+    <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;simplest&quot;</span><span class="p">,</span> <span class="s2">&quot;compactest&quot;</span><span class="p">,</span> <span class="s2">&quot;shortest&quot;</span><span class="p">]:</span>
+        <span class="c1"># expect data to be of the form [(cg_bead_name, n_aa_in_cg, #cg bead)]</span>
+        <span class="n">nbead_so_far</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ncg_so_far</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cgindex</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shorthand</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">num_in_cgbead</span><span class="p">,</span> <span class="n">num_cg_bead</span> <span class="o">=</span> <span class="n">entry</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">num_in_cgbead</span><span class="p">,</span> <span class="n">num_cg_bead</span> <span class="o">=</span> <span class="s2">&quot;DMY&quot;</span><span class="p">,</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unrecognized mapping entry for simple shorthand: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_cg_bead</span><span class="p">):</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nbead_so_far</span><span class="p">,</span> <span class="n">nbead_so_far</span> <span class="o">+</span> <span class="n">num_in_cgbead</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">aa_indices_in_cg</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">indices</span><span class="p">))</span>
+                <span class="n">nbead_so_far</span> <span class="o">+=</span> <span class="n">num_in_cgbead</span>
+                <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_in_cgbead</span><span class="p">):</span>
+                    <span class="n">cg_site_of_aa</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cg_bead_name</span><span class="p">,</span> <span class="n">ncg_so_far</span><span class="p">))</span>
+                <span class="n">ncg_so_far</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.generate_system_mapping">
+<code class="highlight language-python"><span class="n">generate_system_mapping</span><span class="p">(</span><span class="n">mappings</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Generate the AA-&gt;CG mapping for an entire system, from single-chain mappings. New atom indices are global atom indices instead of intrachain indices.</p>
+<h4 id="mdfts.utils.mapper.generate_system_mapping--parameters">Parameters</h4>
+<div class="admonition mapping">
+<p class="admonition-title">list of tuples</p>
+<p>each tuple should be (aa_index_in_cg_mapping_of_molecule, # occurrences of molecule)</p>
+</div>
+<h4 id="mdfts.utils.mapper.generate_system_mapping--return">Return</h4>
+<p>aa_indices_in_cg : list of lists
+    aa_indices_in_cg[i] returns list of aa indices in cg bead i</p>
+<h4 id="mdfts.utils.mapper.generate_system_mapping--notes">Notes:</h4>
+<p>The sequence of mapping should correspond to that of the AA system!
+Assume each <em>molecule</em> is its own new chain.
+In the future, would be nice to have it s.t. just need to define mapping at residue level, knows how to handle patches, and can get the chain-level mapping. This will necessitate knowing how to manipulate the xml topology definitions.</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">generate_system_mapping</span><span class="p">(</span><span class="n">mappings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Generate the AA-&gt;CG mapping for an entire system, from single-chain mappings. New atom indices are global atom indices instead of intrachain indices.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mapping: list of tuples</span>
+<span class="sd">        each tuple should be (aa_index_in_cg_mapping_of_molecule, # occurrences of molecule)</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    aa_indices_in_cg : list of lists</span>
+<span class="sd">        aa_indices_in_cg[i] returns list of aa indices in cg bead i</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">    ------</span>
+<span class="sd">    The sequence of mapping should correspond to that of the AA system!</span>
+<span class="sd">    Assume each *molecule* is its own new chain.</span>
+<span class="sd">    In the future, would be nice to have it s.t. just need to define mapping at residue level, knows how to handle patches, and can get the chain-level mapping. This will necessitate knowing how to manipulate the xml topology definitions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n_atoms_total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">n_chains_total</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">mapping</span> <span class="ow">in</span> <span class="n">mappings</span><span class="p">:</span>
+
+        <span class="n">molecule_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n_replicates</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># of replicates</span>
+        <span class="n">n_beads_in_mapping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">cgbead_mapping</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">cgbead_mapping</span> <span class="ow">in</span> <span class="n">molecule_mapping</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># i.e. # beads in chain/molecule</span>
+
+        <span class="n">cg_bead_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">cgbead_mapping</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">cgbead_mapping</span> <span class="ow">in</span> <span class="n">molecule_mapping</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_replicates</span><span class="p">):</span>
+            <span class="n">new_indices</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cgbead_mapping</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">n_atoms_total</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">cgbead_mapping</span> <span class="ow">in</span> <span class="n">molecule_mapping</span>
+            <span class="p">]</span>
+
+            <span class="n">aa_indices_in_cg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cg_bead_names</span><span class="p">,</span> <span class="n">new_indices</span><span class="p">))</span>
+            <span class="p">)</span>  <span class="c1"># this way, can later iterate through by molecule/chain!</span>
+            <span class="n">n_atoms_total</span> <span class="o">+=</span> <span class="n">n_beads_in_mapping</span>
+
+    <span class="n">system_aa_indices_in_cg</span> <span class="o">=</span> <span class="n">aa_indices_in_cg</span>
+    <span class="k">return</span> <span class="n">system_aa_indices_in_cg</span>
+
+    <span class="c1"># def map(top,mapping_AA2CG,beadtypes):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    top : mdtraj topology</span>
+<span class="sd">    mapping : array</span>
+<span class="sd">        following the output of my generate() helper functions, i.e. returns [ [aa_indices_in_cgbead1], [aa_indices_in_cgbead2], ... ], grouped by chain</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    newtop : mdtraj topology</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Current implementation best for mapping single chain/small systems. For larger systems, will have to do a parallel implementation</span>
+
+<span class="sd">    Nice thing is that this code will figure out the bonds automatically!</span>
+<span class="sd">    Only check for bonding if intrachain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.map_multiple">
+<code class="highlight language-python"><span class="n">map_multiple</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">cgtop</span><span class="p">,</span> <span class="n">system_mapping</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>main difference from map_single is that these mappings are now organized by chain
+Notes:</p>
+<hr />
+<p>Technically... didn't need to generate the system_cg_mapping to use global atom indices, since can reindex the atoms in a chain s.t. can use the intrachain indexing again! But this way keeps things fairly simple.</p>
+<p>In the future, can either put in multiprocessing into this function, or wrap it</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">map_multiple</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">cgtop</span><span class="p">,</span> <span class="n">system_mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    main difference from map_single is that these mappings are now organized by chain</span>
+<span class="sd">    Notes:</span>
+<span class="sd">    ------</span>
+<span class="sd">    Technically... didn&#39;t need to generate the system_cg_mapping to use global atom indices, since can reindex the atoms in a chain s.t. can use the intrachain indexing again! But this way keeps things fairly simple.</span>
+
+<span class="sd">    In the future, can either put in multiprocessing into this function, or wrap it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">num_cg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">system_mapping</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">traj</span><span class="o">.</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">cgtop</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">num_cg_so_far</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">ichain</span><span class="p">,</span> <span class="n">chain</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">system_mapping</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">ichain</span> <span class="o">%</span> <span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mapping molecule </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ichain</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ibead</span><span class="p">,</span> <span class="n">cgbead_entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chain</span><span class="p">):</span>
+            <span class="n">aa_indices</span> <span class="o">=</span> <span class="n">cgbead_entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">ia</span><span class="p">)</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">mass</span> <span class="k">for</span> <span class="n">ia</span> <span class="ow">in</span> <span class="n">aa_indices</span><span class="p">])</span>
+
+            <span class="n">com</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">xyz</span><span class="p">[:,</span> <span class="n">aa_indices</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">masses</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">/</span> <span class="n">masses</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">xyz</span><span class="p">[:,</span> <span class="n">num_cg_so_far</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">com</span>
+            <span class="n">num_cg_so_far</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;finished mapping molecule </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ichain</span><span class="p">))</span>
+    <span class="n">new_traj</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">(</span>
+        <span class="n">xyz</span><span class="p">,</span>
+        <span class="n">cgtop</span><span class="p">,</span>
+        <span class="n">unitcell_lengths</span><span class="o">=</span><span class="n">traj</span><span class="o">.</span><span class="n">unitcell_lengths</span><span class="p">,</span>
+        <span class="n">unitcell_angles</span><span class="o">=</span><span class="n">traj</span><span class="o">.</span><span class="n">unitcell_angles</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_traj</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.map_single">
+<code class="highlight language-python"><span class="n">map_single</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>take in a mapping array, and generate a new mapped topology for the chain, retaining bonds!
+Parameters</p>
+<hr />
+<p>traj : mdtraj trajectory
+mapping : array
+    should be aa_indices_in_cgbead array format, of a single chain</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">map_single</span><span class="p">(</span><span class="n">traj</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    take in a mapping array, and generate a new mapped topology for the chain, retaining bonds!</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    traj : mdtraj trajectory</span>
+<span class="sd">    mapping : array</span>
+<span class="sd">        should be aa_indices_in_cgbead array format, of a single chain</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cg_top</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Topology</span><span class="p">()</span>
+    <span class="c1"># === first add all the species ===</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;creating topology: adding species&quot;</span><span class="p">)</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">cg_top</span><span class="o">.</span><span class="n">add_chain</span><span class="p">()</span>
+    <span class="n">n_beads</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">n_beads</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">cg_beads</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">cgbead_entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+        <span class="n">cgbead_name</span><span class="p">,</span> <span class="n">aa_indices</span> <span class="o">=</span> <span class="n">cgbead_entry</span>
+        <span class="n">resname</span> <span class="o">=</span> <span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span>
+            <span class="n">aa_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># use first atom&#39;s residue as the resname. alternative: use most common occurrence</span>
+        <span class="n">masses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">ia</span><span class="p">)</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">mass</span> <span class="k">for</span> <span class="n">ia</span> <span class="ow">in</span> <span class="n">aa_indices</span><span class="p">])</span>
+        <span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">aa_indices</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">masses</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">masses</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="c1"># print( mdtraj.compute_center_of_mass(traj.atom_slice(aa_indices))[0] )</span>
+        <span class="c1"># print( com )</span>
+        <span class="n">xyz</span><span class="p">[</span><span class="n">ic</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">com</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">cg_top</span><span class="o">.</span><span class="n">add_residue</span><span class="p">(</span><span class="n">resname</span><span class="p">,</span> <span class="n">ch</span><span class="p">)</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">mdtraj</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">virtual</span>
+        <span class="p">)</span>  <span class="c1"># for now... later on can create elements for CG simulation from cg bead name</span>
+        <span class="n">bead</span> <span class="o">=</span> <span class="n">cg_top</span><span class="o">.</span><span class="n">add_atom</span><span class="p">(</span><span class="n">cgbead_name</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+        <span class="n">cg_beads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bead</span><span class="p">)</span>
+
+    <span class="c1"># === figure out connectivity ===</span>
+    <span class="c1"># loop over each cg bead, then over other cg beads, then check bonding</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;creating topology: figuring out bonding&quot;</span><span class="p">)</span>
+    <span class="n">bondgraph</span> <span class="o">=</span> <span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">to_bondgraph</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_beads</span><span class="p">):</span>
+        <span class="n">aa_indices1</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_beads</span><span class="p">):</span>
+            <span class="n">aa_indices2</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">jj</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">bonded</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">bondgraph</span><span class="o">.</span><span class="n">has_edge</span><span class="p">(</span><span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">a1</span><span class="p">),</span> <span class="n">traj</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atom</span><span class="p">(</span><span class="n">a2</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">a1</span> <span class="ow">in</span> <span class="n">aa_indices1</span>
+                    <span class="k">for</span> <span class="n">a2</span> <span class="ow">in</span> <span class="n">aa_indices2</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">bonded</span><span class="p">:</span>
+                <span class="n">cg_top</span><span class="o">.</span><span class="n">add_bond</span><span class="p">(</span><span class="n">cg_beads</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">cg_beads</span><span class="p">[</span><span class="n">jj</span><span class="p">])</span>
+
+    <span class="c1"># === create mapped trajectory and save ===</span>
+    <span class="n">cg_traj</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">([</span><span class="n">xyz</span><span class="p">],</span> <span class="n">cg_top</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cg_traj</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.process_mapping_system">
+<code class="highlight language-python"><span class="n">process_mapping_system</span><span class="p">(</span><span class="n">topdef</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>Create a system_aa_indices_in_cg mapping with <em>global</em> atom indices, as well as a new cg-system topology.
+Modified such that can take a filename, or a system_spec list of lists!</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">process_mapping_system</span><span class="p">(</span><span class="n">topdef</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a system_aa_indices_in_cg mapping with *global* atom indices, as well as a new cg-system topology.</span>
+<span class="sd">    Modified such that can take a filename, or a system_spec list of lists!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">topdef</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">topdef</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">topdef</span><span class="p">)</span>
+        <span class="n">system_spec</span> <span class="o">=</span> <span class="n">topdef</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># treat topdef as dictionary of specifications</span>
+        <span class="n">system_spec</span> <span class="o">=</span> <span class="n">topdef</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">]</span>
+
+    <span class="n">mappings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">mappingfiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">tops</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">system_spec</span><span class="p">:</span>
+        <span class="n">mappingfile</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mappingfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">---&gt; generating system mapping for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s2">&quot;paths&quot;</span> <span class="ow">in</span> <span class="n">topdef</span><span class="p">:</span>  <span class="c1"># use smart pathing to find file</span>
+            <span class="n">mappingfile_full</span> <span class="o">=</span> <span class="n">parsify</span><span class="o">.</span><span class="n">findpath</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">,</span> <span class="n">topdef</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">])</span>
+            <span class="c1"># print(&#39;updating {} to full path {}&#39;.format(mappingfile,mappingfile_full))</span>
+            <span class="n">mappingfile</span> <span class="o">=</span> <span class="n">mappingfile_full</span>
+
+        <span class="n">n_replicates</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">custom</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">custom</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">mappingfile</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;pdb&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">custom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Recognizing .pdb mapping specification for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">))</span>
+            <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">process_pdbfile</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">)</span>
+            <span class="n">traj_mapped</span> <span class="o">=</span> <span class="n">map_single</span><span class="p">(</span><span class="n">mdtraj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">),</span> <span class="n">aa_indices_in_cg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mappingfile</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;pdb&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">custom</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Assuming the pdb is the unmapped pdb, and the customlist is a shortesthand notation&quot;</span>
+            <span class="p">)</span>
+            <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_single_mapping_shorthand</span><span class="p">(</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;shortest&quot;</span><span class="p">,</span> <span class="n">shorthand</span><span class="o">=</span><span class="n">custom</span>
+            <span class="p">)</span>
+            <span class="n">traj_mapped</span> <span class="o">=</span> <span class="n">map_single</span><span class="p">(</span><span class="n">mdtraj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">),</span> <span class="n">aa_indices_in_cg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mappingfile</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;yaml&quot;</span><span class="p">):</span>
+            <span class="n">chain_mapping_spec</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">mappingfile</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">custom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Recognizing .yaml mapping specification for </span><span class="si">{}</span><span class="s2">, using the aa_indices_in_cg section&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">mappingfile</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">aa_indices_in_cg</span> <span class="o">=</span> <span class="n">chain_mapping_spec</span><span class="p">[</span><span class="s2">&quot;aa_indices_in_cg&quot;</span><span class="p">]</span>
+                <span class="n">traj_mapped</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                    <span class="n">parsify</span><span class="o">.</span><span class="n">findpath</span><span class="p">(</span>
+                        <span class="n">chain_mapping_spec</span><span class="p">[</span><span class="s2">&quot;pdbfile_mapped&quot;</span><span class="p">],</span> <span class="n">topdef</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># (e.g. if using shorthand)</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;Recognizing .yaml mapping specification for </span><span class="si">{}</span><span class="s2">, using the </span><span class="si">{}</span><span class="s2"> section&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">mappingfile</span><span class="p">,</span> <span class="n">custom</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">process_mappingfile</span><span class="p">(</span>
+                    <span class="n">mappingfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">custom</span><span class="p">,</span> <span class="n">customfield</span><span class="o">=</span><span class="n">custom</span>
+                <span class="p">)</span>
+                <span class="n">traj_mapped</span> <span class="o">=</span> <span class="n">map_single</span><span class="p">(</span>
+                    <span class="n">mdtraj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                        <span class="n">parsify</span><span class="o">.</span><span class="n">findpath</span><span class="p">(</span>
+                            <span class="n">chain_mapping_spec</span><span class="p">[</span><span class="s2">&quot;pdbfile_unmapped&quot;</span><span class="p">],</span> <span class="n">topdef</span><span class="p">[</span><span class="s2">&quot;paths&quot;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                    <span class="p">),</span>
+                    <span class="n">aa_indices_in_cg</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;chain/molecule mapping format not recognized&quot;</span><span class="p">)</span>
+
+        <span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">n_replicates</span><span class="p">))</span>
+        <span class="n">tops</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">traj_mapped</span><span class="o">.</span><span class="n">top</span><span class="p">,</span> <span class="n">n_replicates</span><span class="p">))</span>
+
+    <span class="n">system_aa_indices_in_cg</span> <span class="o">=</span> <span class="n">generate_system_mapping</span><span class="p">(</span><span class="n">mappings</span><span class="p">)</span>
+
+    <span class="c1"># create new topology</span>
+    <span class="n">new_topology</span> <span class="o">=</span> <span class="n">topologify</span><span class="o">.</span><span class="n">create_system</span><span class="p">(</span><span class="n">tops</span><span class="p">)</span>
+    <span class="n">bead_types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">set</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">new_topology</span><span class="o">.</span><span class="n">atoms</span><span class="p">])</span>
+    <span class="p">)</span>  <span class="c1"># not most efficient, can optimize later</span>
+    <span class="n">bead_types</span> <span class="o">=</span> <span class="p">[[</span><span class="n">aname</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">aname</span> <span class="ow">in</span> <span class="n">bead_types</span><span class="p">]</span>
+
+    <span class="c1"># create necessary files for loading the mapped trajectory (compatible if # atoms &gt; 99999)</span>
+    <span class="c1"># ultimately just a system section where each line is [chain_pdb_file, # chains], don&#39;t try to infer CG bead types yet</span>
+    <span class="n">_trajs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_nreplicates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_chain_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_chain_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ie</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tops</span><span class="p">):</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">chain_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">mappingfiles</span><span class="p">[</span><span class="n">ie</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">chain_file</span> <span class="o">=</span> <span class="n">chain_name</span> <span class="o">+</span> <span class="s2">&quot;_mapped_top.pdb&quot;</span>
+        <span class="n">_chain_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain_file</span><span class="p">)</span>
+        <span class="n">_trajs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mdtraj</span><span class="o">.</span><span class="n">Trajectory</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="n">top</span><span class="o">.</span><span class="n">n_atoms</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="n">top</span><span class="p">))</span>
+        <span class="n">_nreplicates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">_chain_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chain_name</span><span class="p">)</span>
+
+        <span class="n">_trajs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">chain_file</span><span class="p">)</span>
+    <span class="c1"># moltype_defs = dict( list(zip( _chain_names, _chain_files )) )</span>
+    <span class="n">moltype_defs</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="s2">&quot;def&quot;</span><span class="p">:</span> <span class="n">d</span><span class="p">}</span> <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">_chain_names</span><span class="p">,</span> <span class="n">_chain_files</span><span class="p">)]</span>
+    <span class="n">system_def</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">_chain_names</span><span class="p">,</span> <span class="n">_nreplicates</span><span class="p">))</span>
+
+    <span class="n">mapped_def</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAML</span><span class="o">.</span><span class="n">comments</span><span class="o">.</span><span class="n">CommentedMap</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;bead_types&quot;</span><span class="p">,</span> <span class="n">bead_types</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;res_types&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;mol_types&quot;</span><span class="p">,</span> <span class="n">moltype_defs</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="n">system_def</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># if &#39;paths&#39; in topdef:</span>
+    <span class="c1">#  mapped_def[&#39;paths&#39;] = topdef[&#39;paths&#39;]</span>
+    <span class="n">mapped_def</span><span class="p">[</span>
+        <span class="s2">&quot;paths&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="p">)</span>  <span class="c1"># note that in the above, the chain_files are newly generated single-chain mapped files, in case the given definition was not in .pdb format</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">---&gt; final mapped_def:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">mapped_def</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">system_aa_indices_in_cg</span><span class="p">,</span> <span class="n">new_topology</span><span class="p">,</span> <span class="n">mapped_def</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.process_mappingfile">
+<code class="highlight language-python"><span class="n">process_mappingfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">customfield</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>For if the (single chain) mapping uses a yaml/text-based specification of the array</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">process_mappingfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">customfield</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For if the (single chain) mapping uses a yaml/text-based specification of the array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;pdb&quot;</span><span class="p">:</span>
+        <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;pdbfile_mapping&quot;</span><span class="p">]</span>
+        <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">process_pdbfile</span><span class="p">(</span><span class="n">my_mapping</span><span class="p">)</span>
+        <span class="n">shorthand</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;aa&quot;</span><span class="p">,</span> <span class="s2">&quot;aa_indices_in_cg&quot;</span><span class="p">,</span> <span class="s2">&quot;aa_index&quot;</span><span class="p">,</span> <span class="s2">&quot;aa_indices&quot;</span><span class="p">]:</span>
+        <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;aa_indices_in_cg&quot;</span><span class="p">]</span>
+        <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">generate_single_mapping</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;aa_indices_in_cg&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">my_mapping</span>
+        <span class="p">)</span>
+        <span class="n">shorthand</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cg&quot;</span><span class="p">,</span> <span class="s2">&quot;cg_site_of_aa&quot;</span><span class="p">,</span> <span class="s2">&quot;cg_site&quot;</span><span class="p">,</span> <span class="s2">&quot;cg_sites&quot;</span><span class="p">]:</span>
+        <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;cg_site_of_aa&quot;</span><span class="p">]</span>
+        <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">generate_single_mapping</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cg_site_of_aa&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">my_mapping</span>
+        <span class="p">)</span>
+        <span class="n">shorthand</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;short&quot;</span><span class="p">,</span> <span class="s2">&quot;shorthand&quot;</span><span class="p">,</span> <span class="s2">&quot;simple&quot;</span><span class="p">,</span> <span class="s2">&quot;contiguous&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">customfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;shorthand&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">customfield</span><span class="p">]</span>
+        <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">generate_single_mapping_shorthand</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;short&quot;</span><span class="p">,</span> <span class="n">shorthand</span><span class="o">=</span><span class="n">my_mapping</span>
+        <span class="p">)</span>
+        <span class="n">shorthand</span> <span class="o">=</span> <span class="n">my_mapping</span>
+    <span class="k">elif</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;shortest&quot;</span><span class="p">,</span> <span class="s2">&quot;shortesthand&quot;</span><span class="p">,</span> <span class="s2">&quot;simplest&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">customfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="s2">&quot;shorthand&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">customfield</span><span class="p">]</span>
+        <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="n">generate_single_mapping_shorthand</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;shortest&quot;</span><span class="p">,</span> <span class="n">shorthand</span><span class="o">=</span><span class="n">my_mapping</span>
+        <span class="p">)</span>
+        <span class="n">shorthand</span> <span class="o">=</span> <span class="n">my_mapping</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;caution, trying to use a custom mode </span><span class="si">{}</span><span class="s2"> that may not be implemented yet&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">customfield</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">my_mapping</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">customfield</span><span class="p">]</span>
+        <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span><span class="p">,</span> <span class="n">shorthand</span> <span class="o">=</span> <span class="n">generate_single_mapping</span><span class="p">(</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">my_mapping</span>
+        <span class="p">)</span>
+        <span class="c1"># raise ValueError(&#39;specified mode has not been implemented yet&#39;)</span>
+
+    <span class="k">return</span> <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span><span class="p">,</span> <span class="n">shorthand</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+  <div class="doc doc-object doc-function">
+
+
+
+<h2 class="doc doc-heading" id="mdfts.utils.mapper.process_pdbfile">
+<code class="highlight language-python"><span class="n">process_pdbfile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></code>
+
+
+</h2>
+
+    <div class="doc doc-contents ">
+
+      <p>For if the mapping uses the residue name column of pdbfile as the cg bead</p>
+
+        <details class="quote">
+          <summary>Source code in <code>mdfts/utils/mapper.py</code></summary>
+          <div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">process_pdbfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For if the mapping uses the residue name column of pdbfile as the cg bead</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">mdtraj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">cg_site_of_aa</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">residue</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">t</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">atoms</span><span class="p">]</span>
+    <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">generate_single_mapping</span><span class="p">(</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cg_site_of_aa&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">cg_site_of_aa</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">aa_indices_in_cg</span><span class="p">,</span> <span class="n">cg_site_of_aa</span>
+</code></pre></div>
+        </details>
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+  </div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../forcefield/" class="md-footer__link md-footer__link--prev" aria-label="Previous: forcefield.py" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              forcefield.py
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../parsify/" class="md-footer__link md-footer__link--next" aria-label="Next: parsify.py" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              parsify.py
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/EqualAPriori/mdfts" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["navigation.tabs", "navigation.top", "navigation.sections"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../../../assets/javascripts/workers/search.22074ed6.min.js"}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.1514a9a0.min.js"></script>
+      
+    
+  </body>
+</html>

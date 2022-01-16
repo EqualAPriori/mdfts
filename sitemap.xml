@@ -21,7 +21,22 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://equalapriori.github.io/mdfts/reference/mdfts/utils/forcefield/</loc>
+         <lastmod>2022-01-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://equalapriori.github.io/mdfts/reference/mdfts/utils/mapper/</loc>
+         <lastmod>2022-01-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://equalapriori.github.io/mdfts/reference/mdfts/utils/parsify/</loc>
+         <lastmod>2022-01-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://equalapriori.github.io/mdfts/reference/mdfts/utils/topologify/</loc>
          <lastmod>2022-01-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
