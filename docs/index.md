@@ -7,5 +7,8 @@ We provide several tools to help connect standard simulation formats and definit
 In the future, we may also provide special utilities to run simulation campaigns.
 
 ---
+!!! note
+    An example admonition
+
 
 --8<-- "README.md"

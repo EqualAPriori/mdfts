@@ -1,3 +1,7 @@
+""" 
+Special functions to parse string inputs in force fields. 
+Mostly to help properly turn strings into the appropriate types.
+"""
 #! My parsing helper functions
 # (C) Kevin Shen, 2021
 import re
@@ -32,7 +36,24 @@ def findpath(fname, paths):
 
 # ===== Atomic Parsing Functions =====
 def isfloat(value):
-    """Check if value (string) can be cast to float. Right now clunky cuz float turns alphabet strings to float!"""
+    """Check if value can be cast to float and is not a bool.
+    
+    I.e. make sure we aren't casting booleans to floats.
+
+    Args:
+        value (any): [description]
+
+    Returns:
+        bool: also returns False if `value` is a `float`.
+
+    Examples:
+        >>> isfloat(1)
+        True
+        >>> isfloat(False)
+        False
+        >>> isfloat('false')
+        False
+    """
     if type(value) is bool:
         return False
     try:
@@ -43,7 +64,26 @@ def isfloat(value):
 
 
 def isbool(value):
-    """Check if value (string) is true/false"""
+    """Check if value (string) is true/false
+
+    Args:
+        value (str): 
+
+    Returns:
+        bool: True if value.lower() in ['false','true','fixed','free'] else False
+
+    Examples:
+        >>> isbool(1)
+        False
+        >>> isbool('false')
+        True
+        >>> isbool('fixed')
+        True
+        >>> isbool('FrEe')
+        True
+        >>> isbool('asdf')
+        False
+    """
     if isinstance(value, str) and value.lower() in ["false", "true", "fixed", "free"]:
         return True
     else:
@@ -51,7 +91,29 @@ def isbool(value):
 
 
 def tobool(value):
-    """Check if value (string) is true/false. Else return original value"""
+    """Check if value (string) is true/false. Else return original value.
+
+    Special handling for 'free'/'fixed', which should map to False/True for the purposes of `sim`.
+    Meant for parsing non-sequence elements, although sequences also go through.
+
+    Args:
+        value (any): 
+
+    Returns:
+        depends: True/False if `value` is `str` with 'true/false/fixed/free'. Otherwise, return `value`.
+
+    Examples:
+        >>> tobool('1')
+        '1'
+        >>> tobool('false')
+        False
+        >>> tobool('true')
+        True
+        >>> tobool('free')
+        False
+        >>> tobool('fixed')
+        True
+    """
     if isinstance(value, str) and value.lower() in ["false", "free"]:
         return False
     elif isinstance(value, str) and value.lower() in ["true", "fixed"]:
@@ -95,73 +157,70 @@ def parse_entry(entry, delim=";"):
         processed_entry : dict or value
           namestring (anything that can't be split or cast to float or bool)--> string
           float --> {'val:float}, bool --> {'fixed:bool}, namedparam set --> {param: name or {'val': float, 'fixed: bool}}
-    """
 
-    """
-    Notes
-    -----
-    "name" is the only special field that is left untouched
-    as constructed, don't worry about iterative parsing. trying to keep structures flat, parse_line handles multiple entries. Each entry will either be some key:value pair or only contain values
+    Note:
+        "name" is the only special field that is left untouched
+        as constructed, don't worry about iterative parsing. trying to keep structures flat, parse_line handles multiple entries. Each entry will either be some key:value pair or only contain values
 
-    Different use cases (non-exhaustive):
-    entry = 
-    - "name:somename"
-    - "name;somename"
-    - "paramname;float;bool"
-    - "float"
-    - "bool"
-    - [paramname,float,bool]
-    - [paramname,"float;bool"]
-    - [paramname,"float bool"]
-    - {paramname: "float;bool"}
-    - {paramname: [float,bool]}
-    - {paramname: {val:, fixed:}} #don't need to do anything
+        Different use cases (non-exhaustive):
+        ```
+        entry = 
+        - "name:somename"
+        - "name;somename"
+        - "paramname;float;bool"
+        - "float"
+        - "bool"
+        - [paramname,float,bool]
+        - [paramname,"float;bool"]
+        - [paramname,"float bool"]
+        - {paramname: "float;bool"}
+        - {paramname: [float,bool]}
+        - {paramname: {val:, fixed:}} #don't need to do anything
+        ```
+        i.e. entry should be atomic, single parameter, not multiple parameters in a container
 
-    i.e. entry should be atomic, single parameter, not multiple parameters in a container
+    Examples:
+        >>> parsify.parse_beadtypes('A;B;CC')
+        ['A', 'B', 'CC']
 
-    Examples
-    --------
-    >>> parsify.parse_beadtypes('A;B;CC')
-    ['A', 'B', 'CC']
+        >>> parsify.parse_entry(1.0)
+        {'val': 1.0}
 
-    >>> parsify.parse_entry(1.0)
-    {'val': 1.0}
+        >>> parsify.parse_entry(False)
+        {'fixed': False}
+        
+        >>> parsify.parse_entry([1.0,False])
+        {'fixed': False, 'val': 1.0}
 
-    >>> parsify.parse_entry(False)
-    {'fixed': False}
-    
-    >>> parsify.parse_entry([1.0,False])
-    {'fixed': False, 'val': 1.0}
+        >>> parsify.parse_entry(['B',1.0,False])
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry(['B',1.0,False])
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry(['B',[1.0,False]])
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry(['B',[1.0,False]])
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry(['B','1.0;False'])
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry(['B','1.0;False'])
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry(['B','1.0 False']) #also supports white space delimiting, if appropriate
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry(['B','1.0 False']) #also supports white space delimiting, if appropriate
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry({'name':'lala'})
+        {'name': 'lala'}
 
-    parsify.parse_entry({'name':'lala'})
-    {'name': 'lala'}
+        >>> parsify.parse_entry('name;lala')
+        {'name': 'lala'}
 
-    >>> parsify.parse_entry('name;lala')
-    {'name': 'lala'}
+        >>> parsify.parse_entry({'B':"1.0 False"})
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry({'B':"1.0 False"})
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry({'B':"1.0;False"})
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry({'B':"1.0;False"})
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry({'B':[1.0,'False']})
+        {'B': {'fixed': False, 'val': 1.0}}
 
-    >>> parsify.parse_entry({'B':[1.0,'False']})
-    {'B': {'fixed': False, 'val': 1.0}}
-
-    >>> parsify.parse_entry({'B':{'val':1.0, 'fixed':False}})
-    {'B': {'fixed': False, 'val': 1.0}}
+        >>> parsify.parse_entry({'B':{'val':1.0, 'fixed':False}})
+        {'B': {'fixed': False, 'val': 1.0}}
     """
     # print('received {}'.format(entry))
     if isinstance(entry, list) and len(entry) == 1:
@@ -221,73 +280,72 @@ def parse_potential_entry(entry, nbody, store_dict=None, prefix=""):
 
     Args:
         entry (str, list, dict): entry
-        nbody (int): # atoms involved to specify filters for this potential
+        nbody (int): number of atoms involved to specify filters for this potential
         store_dict (dict-like, optional): store results into a given dict instead of returnign new dict. Defaults to None.
         prefix (str, optional): prefix labeling the type of potential. Defaults to "".
 
     Returns:
         dict: the potential entry, fully expanded into a dictionary
-    """
-    """
-    Notes
-    -----
-    This only does the initial shorthand conversions.
-    String format: one line entry of everything.
-    List: MUST have format [ #body1, ..., #body-n, strings, lists, or dicts, per parameter ], i.e. does not make sense to have a sublist with multiple interactions
-        or [bead1, bead2, {dict of all parameters}]
-        i.e. if more than one dict, then must have all entries collected together!
-        expect each individual entry to be:
-        paramname;val
-        [paramname, valuestring]
-        [paramname, valuelist]
-        [paramname, valuedict]
-        {paramname: valuestring, valuelist, valuedict}
 
-    try to use storage container, i.e. if storage is Ordered (e.g. Yaml object), then hopefully the resulting output will be as well.
+    Note:
+        This only does the initial shorthand conversions.
+        
+        String format: one line entry of everything.
 
-    Examples
-    --------
-    Vanilla example with string definition of potential 
+        List: 
 
-    >>> parsify.parse_potential_entry('A B name;123 B;1.0;Fixed', 2, prefix='ljg')
-    {'B': {'fixed': True, 'val': 1.0}, 'species': ['A', 'B'], 'name': 123.0}
+            MUST have format [ #body1, ..., #body-n, strings, lists, or dicts, per parameter ], 
+            
+            i.e. does not make sense to have a sublist with multiple interactions or [bead1, bead2, {dict of all parameters}]
+            
+            i.e. if more than one dict, then must have all entries collected together!
+            
+            expect each individual entry to be:
+            
+            paramname;val
+            [paramname, valuestring]
+            [paramname, valuelist]
+            [paramname, valuedict]
+            {paramname: valuestring, valuelist, valuedict}
+            
+        try to use storage container, i.e. if storage is Ordered (e.g. Yaml object), then hopefully the resulting output will be as well.
 
-    #auto-named!
-    
-    >>> parsify.parse_potential_entry('A B B;1.0;Fixed', 2, prefix='ljg')
-    {'B': {'fixed': True, 'val': 1.0}, 'species': ['A', 'B'], 'name': 'ljg_A_B'}
+    Examples:
 
+        Vanilla example with string definition of potential 
+        >>> parsify.parse_potential_entry('A B name;123 B;1.0;Fixed', 2, prefix='ljg')
+        {'B': {'fixed': True, 'val': 1.0}, 'species': ['A', 'B'], 'name': 123.0}
 
-    #multiple parameters!
-    
-    >>> parsify.parse_potential_entry('A B B;1.0;Fixed Kappa;1.0;False', 2, prefix='ljg')
-    {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': ['A', 'B'], 'name': 'ljg_A_B'}
+        auto-named!
+        >>> parsify.parse_potential_entry('A B B;1.0;Fixed', 2, prefix='ljg')
+        {'B': {'fixed': True, 'val': 1.0}, 'species': ['A', 'B'], 'name': 'ljg_A_B'}
 
-    #list as input, with mix of parameter definition styles
+        multiple parameters!
+        >>> parsify.parse_potential_entry('A B B;1.0;Fixed Kappa;1.0;False', 2, prefix='ljg')
+        {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': ['A', 'B'], 'name': 'ljg_A_B'}
 
-    >>> parsify.parse_potential_entry(['A','B;C','Kappa;1.0;False',['B',1.0,True],{'Dist0': '1.0;fixed'}], 2, prefix='ljg')
-    process line
-    {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'C']], 'name': 'ljg_A_B;C', 'Dist0': {'fixed': True, 'val': 1.0}}
+        list as input, with mix of parameter definition styles
+        >>> parsify.parse_potential_entry(['A','B;C','Kappa;1.0;False',['B',1.0,True],{'Dist0': '1.0;fixed'}], 2, prefix='ljg')
+        process line
+        {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'C']], 'name': 'ljg_A_B;C', 'Dist0': {'fixed': True, 'val': 1.0}}
 
-    #dict as input, with mix of paramter definition styles
+        dict as input, with mix of paramter definition styles
+        >>> parsify.parse_potential_entry({'species':'A B;C', 'Kappa':[1.0,False], 'B':'1.0 fixed'}, 2, prefix='ljg')
+        {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'C']], 'name': 'ljg_A_B;C'}
 
-    >>> parsify.parse_potential_entry({'species':'A B;C', 'Kappa':[1.0,False], 'B':'1.0 fixed'}, 2, prefix='ljg')
-    {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'C']], 'name': 'ljg_A_B;C'}
+        an ordered dict can keep things in order:
+        >>> from collections import OrderedDict
+        >>> od = OrderedDict()
+        >>> parsify.parse_potential_entry({'species':'A B;C', 'Kappa':[1.0,False], 'B':'1.0 fixed'}, 2, prefix='ljg', store_dict=od)
+        {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'C']], 'name': 'ljg_A_B;C'}
+        >>> od
+        OrderedDict([('species', [['A'], ['B', 'C']]), ('B', {'fixed': True, 'val': 1.0}), ('Kappa', {'fixed': False, 'val': 1.0})])
 
-    #an ordered dict can keep things in order:
-
-    >>> from collections import OrderedDict
-    >>> od = OrderedDict()
-    >>> parsify.parse_potential_entry({'species':'A B;C', 'Kappa':[1.0,False], 'B':'1.0 fixed'}, 2, prefix='ljg', store_dict=od)
-    {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'C']], 'name': 'ljg_A_B;C'}
-    >>> od
-    OrderedDict([('species', [['A'], ['B', 'C']]), ('B', {'fixed': True, 'val': 1.0}), ('Kappa', {'fixed': False, 'val': 1.0})])
-
-    One last example
-    >>> parsify.parse_potential_entry(['A','B,D,E', {'Kappa':[1.0,False], 'B':'1.0 fixed'}], 2, prefix='ljg', store_dict=od)
-    {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'D', 'E']], 'name': 'ljg_A_B;D;E'}
-    >>> od
-    OrderedDict([('species', [['A'], ['B', 'D', 'E']]), ('B', {'fixed': True, 'val': 1.0}), ('Kappa', {'fixed': False, 'val': 1.0})])
+        One last example
+        >>> parsify.parse_potential_entry(['A','B,D,E', {'Kappa':[1.0,False], 'B':'1.0 fixed'}], 2, prefix='ljg', store_dict=od)
+        {'B': {'fixed': True, 'val': 1.0}, 'Kappa': {'fixed': False, 'val': 1.0}, 'species': [['A'], ['B', 'D', 'E']], 'name': 'ljg_A_B;D;E'}
+        >>> od
+        OrderedDict([('species', [['A'], ['B', 'D', 'E']]), ('B', {'fixed': True, 'val': 1.0}), ('Kappa', {'fixed': False, 'val': 1.0})])
     """
     if isinstance(entry, str):
         # a string format
