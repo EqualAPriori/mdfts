@@ -1,0 +1,1066 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interface for integrated particle and field simulations">
+      
+      
+      
+        <link rel="canonical" href="https://equalapriori.github.io/mdfts/format_ff/">
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.6">
+    
+    
+      
+        <title>Force Field Format - MDFTS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.cd566b2a.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent="">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#force-field-format" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MDFTS" class="md-header__button md-logo" aria-label="MDFTS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MDFTS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Force Field Format
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <form class="md-header__option" data-md-component="palette">
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+          
+            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22z"/></svg>
+            </label>
+          
+        
+          
+          
+          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+          
+            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31z"/></svg>
+            </label>
+          
+        
+      </form>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EqualAPriori/mdfts/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mdfts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link md-tabs__link--active">
+        Home
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/ToC/" class="md-tabs__link">
+        Code Reference
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MDFTS" class="md-nav__button md-logo" aria-label="MDFTS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    MDFTS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EqualAPriori/mdfts/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mdfts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_1">
+          Home
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Home" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          Home
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Welcome to MDFTS
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1_2" type="checkbox" id="__nav_1_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_1_2">
+          Formats
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Formats" data-md-level="2">
+        <label class="md-nav__title" for="__nav_1_2">
+          <span class="md-nav__icon md-icon"></span>
+          Formats
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Force Field Format
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Force Field Format
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#parts-of-a-potential-definition" class="md-nav__link">
+    Parts of a potential definition.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shorthand" class="md-nav__link">
+    Shorthand
+  </a>
+  
+    <nav class="md-nav" aria-label="Shorthand">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#representing-beadtypes" class="md-nav__link">
+    Representing beadtypes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#representing-parameters" class="md-nav__link">
+    Representing parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#putting-it-all-together" class="md-nav__link">
+    Putting it all together
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new_standards" class="md-nav__link">
+    New_Standards
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example_file" class="md-nav__link">
+    Example_file
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Code Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Code Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Code Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/ToC/" class="md-nav__link">
+        At a glance
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2">
+          Src
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Src" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_2">
+          <span class="md-nav__icon md-icon"></span>
+          Src
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2_1" type="checkbox" id="__nav_2_2_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2_1">
+          mdfts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="mdfts" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          mdfts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2_1_1" type="checkbox" id="__nav_2_2_1_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_2_1_1">
+          utils
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="utils" data-md-level="4">
+        <label class="md-nav__title" for="__nav_2_2_1_1">
+          <span class="md-nav__icon md-icon"></span>
+          utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/forcefield/" class="md-nav__link">
+        forcefield.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/mapper/" class="md-nav__link">
+        mapper.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/parsify/" class="md-nav__link">
+        parsify.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/topologify/" class="md-nav__link">
+        topologify.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/yamlhelper/" class="md-nav__link">
+        yamlhelper.py
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#parts-of-a-potential-definition" class="md-nav__link">
+    Parts of a potential definition.
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shorthand" class="md-nav__link">
+    Shorthand
+  </a>
+  
+    <nav class="md-nav" aria-label="Shorthand">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#representing-beadtypes" class="md-nav__link">
+    Representing beadtypes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#representing-parameters" class="md-nav__link">
+    Representing parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#putting-it-all-together" class="md-nav__link">
+    Putting it all together
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new_standards" class="md-nav__link">
+    New_Standards
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example_file" class="md-nav__link">
+    Example_file
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+<a href="https://github.com/EqualAPriori/mdfts/edit/master/docs/format_ff.md" title="Edit this page" class="md-content__button md-icon">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+</a>
+
+
+<h1 id="force-field-format">Force Field Format</h1>
+<p>To see a full example, see <a href="#Example_file">example file</a> below. </p>
+<p>Can also skip to the <a href="#New_Standards">new standards</a> section to discuss alternative force field formats.</p>
+<p>Otherwise, we will break down the sections/elements of a potential, along with <a href="#Shorthand">shorthand</a></p>
+<p>The main reason for this force field format is to facilitate the definition of <em>default</em> parameters, and offer some shorthand to reduce repetitive typing of fields.</p>
+<p>The spec is up for modification, and perhaps at some point we should transition to XML, or at least allow for easy conversion from XML to our format and vice versa. I.e. the XML format used by OpenMM allows for successive over-riding of parameter values.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>the OpenMM XML standard is able to successively define parameters precisely because it uses a convention of <em>overriding</em> variables instead of <em>layering</em> potentials. I.e it is not allowed (or at least not natural) to layer potentials of the same type on the same pair of atom types in OpenMM (i.e. only one LJ interaction per pair, instead of a superposition of 5)! </p>
+</div>
+<p>Currently supported potentials:</p>
+<div class="highlight"><pre><span></span><code>bond_harmonic
+pair_ljg
+external_sin
+coulomb_smeared
+</code></pre></div>
+<p>We use <code>yaml</code>, and a force field is essentially a definition with a block for each potential type, and all defaults, parameters, and specific instances of the potential listed said <code>yaml</code> block.</p>
+<h2 id="parts-of-a-potential-definition">Parts of a potential definition.</h2>
+<p>Consider the following minimal definition of an external sinusoidal potential, with parts annotated
+<div class="highlight"><pre><span></span><code><span class="nt">external_sin</span><span class="p">:</span><span class="w">                   </span><span class="c1"># name of the potential-type</span><span class="w"></span>
+<span class="w">    </span><span class="nt">defaults_sim</span><span class="p">:</span><span class="w">               </span><span class="c1"># default parameters</span><span class="w"></span>
+<span class="w">        </span><span class="nt">UConst</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0 fixed</span><span class="w">       </span><span class="c1"># following `sim`, this is a fixable (optimizable) parameter</span><span class="w"></span>
+<span class="w">        </span><span class="nt">NPeriods</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0 fixed</span><span class="w"></span>
+<span class="w">        </span><span class="nt">PlaneLoc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span><span class="w">           </span><span class="c1"># following `sim`, this is a non-fixable (optimizable) module variable</span><span class="w"></span>
+<span class="w">        </span><span class="nt">PlaneAxis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">params_sim</span><span class="p">:</span><span class="w">                 </span><span class="c1"># actual specification</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4 UConst;1.0</span><span class="w">        </span><span class="c1"># BeadName ParameterName;ParameterValue</span><span class="w"></span>
+</code></pre></div></p>
+<h2 id="shorthand">Shorthand</h2>
+<p>Conventions for writing/specifiying parameters.</p>
+<p>There are two types of variables in <code>sim</code>: optimizable parameters and non-optimizable(fixable) parameters. </p>
+<p>The former are specified by three terms:</p>
+<div class="highlight"><pre><span></span><code>parameter_name, value, fixed/free
+</code></pre></div>
+<p>While the latter only have two terms:</p>
+<div class="highlight"><pre><span></span><code>parameter_name, value
+</code></pre></div>
+<p>The second case is a simpler version of the first case, so we only cover the first case.</p>
+<p>In fully annotated form, a potential type will consist of a list of dictionaries that fully specify each instance of a potential:</p>
+<div class="highlight"><pre><span></span><code>[
+    {   &#39;species&#39;: [[&#39;btype1&#39;,&#39;btype2&#39;],[&#39;btype1&#39;]],
+        &#39;name&#39;: &#39;potential_name_typeidentifier&#39;,
+        &#39;ParamName1&#39;: {val:X, fixed:&#39;fixed/free&#39;},
+        &#39;ParamName2&#39;: {val:Y, fixed:&#39;fixed/free&#39;}
+    },
+    {
+        ...potential 2...
+    }
+]
+</code></pre></div>
+<p>Or, in python output for a single entry:
+<div class="highlight"><pre><span></span><code><span class="n">OrderedDict</span><span class="p">([</span> <span class="p">(</span><span class="s1">&#39;species&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;SO4&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">]]),</span> 
+                <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;bond_SO4_S&#39;</span><span class="p">),</span> 
+                <span class="p">(</span><span class="s1">&#39;Dist0&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fixed&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}),</span>
+                <span class="p">(</span><span class="s1">&#39;FConst&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fixed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+<span class="p">])</span>
+</code></pre></div></p>
+<p>The purpose of using dictionaries is that it makes it really transparent to access values of a definition of a potential by <code>keys</code>, and it also does not require the user to define every part of a potential in a prescribed order. The dictionary is probably also easiest to make correspondence with <code>objects</code> in the future.</p>
+<p>The premise is that we want to turn each dictionary entry representing an instance of a potential in a simple format that can even be put on a single line. To do so we introduce several shorthands for making it easier to write the above out in a single line:</p>
+<ul>
+<li>allow for the specification of defaults</li>
+<li>use spaces to distinguish each term of the list</li>
+<li>denote the parameter tuples as a single "word" delimited by ";"'s</li>
+<li>missing values are inferred from the defaults</li>
+</ul>
+<p>The user is free to represent things with the shorthand format or any <code>yaml</code>-interpretable multi-line form that explicitly denotes lists, dictionaries, etc. In the limit where one uses a fully <code>yaml</code>-interpretable specification (with all the <code>[]{}</code> brackets), our parser won't be needed, and one can directly work with the resulting <code>dict-like</code> object returned by the <code>yaml</code> loader.</p>
+<p>We start by standardizing an equivalent <strong><code>list-form</code></strong> representation of each dictionary:</p>
+<div class="highlight"><pre><span></span><code>[ beadtype1, beadtype2, ..., [ParamName,Value,Fixed/Free], [ParamName,Value,FixedFree], ... ]
+</code></pre></div>
+<p>Note that potential names can be constructed following convention, so we don't have to worry about explicitly including a name/identifier in the above list.</p>
+<h3 id="representing-beadtypes">Representing beadtypes</h3>
+<p>Let us first address how to denote bead types of a potential, i.e. the dictionary entry key-value pair</p>
+<div class="highlight"><pre><span></span><code>&#39;species&#39;: [[&#39;SO4&#39;], [&#39;S&#39;,&#39;C&#39;]]
+</code></pre></div>
+<p>Each potential type knows whether it's a 1-body, 2-body, etc. interaction. An <code>n</code>-body potential will correspondingly expect a list of <code>n</code> groups/lists/tuples. Since the number of entries/groups is well-defined, we simply specify that the first <code>n</code> elements of the <strong>list-form</strong> of the potential contain the bead types. </p>
+<p>Note that we can define groups of more than one bead type, like in the above example, which means to define both a <code>SO4-S</code> and a <code>SO4-C</code> interaction.</p>
+<p>Correspondingly, the above bead type specification for the species involved in this potential can be written in the following equivalent ways that get parsed to the same thing:</p>
+<div class="highlight"><pre><span></span><code>[SO4], [S,C]
+SO4, [S,C]
+[SO4], S;C
+SO4, S;C
+</code></pre></div>
+<p>where we have used <code>;</code> without spaces as a shorthand to concatenate the two elements of the <code>['S','C']</code> list. The above entries are meant to to into a '<code>yaml</code>' list with <code>[ .. ]</code> brackets. Note that <code>yaml</code> doesn't need quotes for strings.</p>
+<p>Finally, for a completely <em>inline</em> representation that is purely a string with no brackets, we can write the above as the beginning of a <em>inline string</em> representation:</p>
+<div class="highlight"><pre><span></span><code>SO4 S;C
+</code></pre></div>
+<div class="admonition danger">
+<p class="admonition-title">CONSIDER</p>
+<p>what do we do if multiple potentials are defined for a pair of beadtypes? Do we override or layer potentials?</p>
+<p>OpenMM, most MD programs, PFTS don't allow for layering potentials, so they are based on overriding potentials. However, sim allows for layering potentials... so it's a different convention.</p>
+</div>
+<h3 id="representing-parameters">Representing parameters</h3>
+<p>Each parameter is in the most verbose form a key-value pair:</p>
+<div class="highlight"><pre><span></span><code>&#39;Dist0&#39;: {&#39;fixed&#39;: True, &#39;val&#39;: 0.0}
+</code></pre></div>
+<p>Where the <code>value</code> is itself another dictionary.</p>
+<p>We allow the above to be written in several different ways for use within a <em><code>yaml</code> list</em>:</p>
+<div class="highlight"><pre><span></span><code>[Dist0, 0.0, fixed]
+{Dist0: 0.0 fixed}
+{Dist0: 0.0 True}
+{Dist0: 0.0;True}
+</code></pre></div>
+<p>The main shorthand is that when using a dictionary representation for the entry, instead of making the value itself a dictionary with the <code>fixed</code> and <code>val</code> keys, we allow for <code>space-</code> or <code>,</code> delimited string representation.</p>
+<p>And for a completely inline representation:</p>
+<div class="highlight"><pre><span></span><code>Dist0;0.0;fixed
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that any parameters that aren't defined resort to default values defined in the <code>defaults_sim</code> section of each <code>potential type</code>.</p>
+<p>Also note that either <code>fixed/free</code> or <code>True/False</code> can be used.</p>
+</div>
+<h3 id="putting-it-all-together">Putting it all together</h3>
+<p>So, the full dictionary</p>
+<div class="highlight"><pre><span></span><code><span class="n">OrderedDict</span><span class="p">([</span> <span class="p">(</span><span class="s1">&#39;species&#39;</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;SO4&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;S&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">]]),</span> 
+                <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;bond_SO4_S&#39;</span><span class="p">),</span> 
+                <span class="p">(</span><span class="s1">&#39;Dist0&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fixed&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}),</span>
+                <span class="p">(</span><span class="s1">&#39;FConst&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fixed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
+<span class="p">])</span>
+</code></pre></div>
+<p>can be written as the following equivalent ways:
+    <div class="highlight"><pre><span></span><code><span class="p p-Indicator">[</span><span class="nv">SO4</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">S</span><span class="p p-Indicator">,</span><span class="nv">C</span><span class="p p-Indicator">],</span><span class="w"> </span><span class="nv">Dist0;0.0;True</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">FConst;1.0;fixed</span><span class="p p-Indicator">]</span><span class="w">          </span><span class="c1">#list-format</span><span class="w"></span>
+<span class="p p-Indicator">[[</span><span class="nv">SO4</span><span class="p p-Indicator">],</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">S</span><span class="p p-Indicator">,</span><span class="nv">C</span><span class="p p-Indicator">],</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Dist0</span><span class="p p-Indicator">,</span><span class="nv">0.0</span><span class="p p-Indicator">,</span><span class="nv">True</span><span class="p p-Indicator">],</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">FConst</span><span class="p">:</span><span class="w"> </span><span class="nv">1.0 fixed</span><span class="p p-Indicator">}]</span><span class="w">   </span><span class="c1">#list-format</span><span class="w"></span>
+<span class="l l-Scalar l-Scalar-Plain">SO4 S;C Dist0;0.0;True FConst;1.0;fixed</span><span class="w">                 </span><span class="c1">#inline format</span><span class="w"></span>
+</code></pre></div></p>
+<div class="admonition question">
+<p class="admonition-title">Question</p>
+<p>When using the <code>yaml</code> list to enapsulate the entire entry (so the first line in the above codeblock), am I allowed to use shorthand for the parameters? Or do I have to use lists/dictionaries to specify the parameter?</p>
+</div>
+<h2 id="new_standards">New_Standards</h2>
+<p>STUB</p>
+<h2 id="example_file">Example_file</h2>
+<details class="note" open="open">
+<summary>Example_file.dat</summary>
+<div class="highlight"><pre><span></span><code><span class="c1"># Example yaml force field definition </span><span class="w"></span>
+<span class="nt">bond_harmonic</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">defaults_sim</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">FConst</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Dist0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fixed</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">params_sim</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4 S FConst;1.0;False Dist0,0.0,True</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C2 S FConst;3.0 Dist0;True</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">S S FConst;100.0 Dist0;1.618</span><span class="w"></span>
+<span class="w">    </span><span class="nt">params_md</span><span class="p">:</span><span class="w"> </span><span class="c1">#the typical standard</span><span class="w"></span>
+
+<span class="nt">pair_ljg</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">defaults_sim</span><span class="p">:</span><span class="w"> </span><span class="c1">#used only by sim</span><span class="w"></span>
+<span class="w">        </span><span class="nt">B</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0 True</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Kappa</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0 True</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Dist0</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0 True</span><span class="w"></span>
+<span class="w">        </span><span class="nt">a_smear</span><span class="p">:</span><span class="w"> </span><span class="c1">#For now, behavior is to default Kappa, but not pre-given Kappas</span><span class="w"></span>
+<span class="w">            </span><span class="nt">SO4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.313173</span><span class="w"></span>
+<span class="w">            </span><span class="nt">S</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.45</span><span class="w"></span>
+<span class="w">            </span><span class="nt">C2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">params_sim</span><span class="p">:</span><span class="w"> </span><span class="c1"># B*exp(-kappa*(r-Dist0)) + 4 Epsilon ( (Sigma/r)^12 - (Sigma/r)^6 )</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4 S B;1.0;False</span><span class="w"> </span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">#- SO4 S;C2 B;2.0 Kappa;0.25</span><span class="w"></span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">#- SO4 SO4;S B;2.0</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4 SO4 B;2.0</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">C2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SO4</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">B</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">fixed</span><span class="p p-Indicator">],</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">Sigma</span><span class="p">:</span><span class="w"> </span><span class="nv">1.0 True</span><span class="p p-Indicator">}]</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">S S B;1.0</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">C2 C2 B;1.0</span><span class="w"></span>
+
+<span class="nt">external_sin</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">defaults_sim</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">UConst</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0 fixed</span><span class="w"></span>
+<span class="w">        </span><span class="nt">NPeriods</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0 fixed</span><span class="w"></span>
+<span class="w">        </span><span class="nt">PlaneLoc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span><span class="w"></span>
+<span class="w">        </span><span class="nt">PlaneAxis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">params_sim</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4 UConst;1.0</span><span class="w"></span>
+
+<span class="nt">coulomb_smeared</span><span class="p">:</span><span class="w"> </span><span class="c1">#automatically turns on ewald, then adds the correction potential</span><span class="w"></span>
+<span class="w">    </span><span class="nt">defaults_sim</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Coef</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0 True</span><span class="w"></span>
+<span class="w">        </span><span class="nt">BornA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0 True</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Cut</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w"></span>
+<span class="w">        </span><span class="nt">Shift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
+<span class="w">        </span><span class="nt">ExcludeBondOrd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"> </span><span class="c1"># only implemented in ewald. currently !=0 values not supported</span><span class="w"></span>
+<span class="w">        </span><span class="nt">a_smear</span><span class="p">:</span><span class="w"> </span><span class="c1">#first implementation: only overrides if BornA not defined below. Use same smearing convention as Gaussian above, not Born-A convention.</span><span class="w"></span>
+<span class="w">            </span><span class="nt">SO4</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+<span class="w">            </span><span class="nt">S</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"></span>
+<span class="w">            </span><span class="nt">C2</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.7</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">params_sim</span><span class="p">:</span><span class="w"> </span><span class="c1">#if BornA = 0, then same as unsmeared Coulomb. Even if no interactions defined, still add ewald.</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4,S SO4,S</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SO4,S,C2 C2 BornA;2.0</span><span class="w"></span>
+
+<span class="w">    </span><span class="nt">params_md</span><span class="p">:</span><span class="w"></span>
+</code></pre></div>
+</details>
+
+              
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Welcome to MDFTS" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Welcome to MDFTS
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../reference/ToC/" class="md-footer__link md-footer__link--next" aria-label="Next: At a glance" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              At a glance
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/EqualAPriori/mdfts" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.sections"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js"}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1514a9a0.min.js"></script>
+      
+    
+  </body>
+</html>
