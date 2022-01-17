@@ -9,6 +9,7 @@ theme:
   name: material
   features:
   - navigation.tabs
+  - navigation.tabs.sticky
   - navigation.top 
   - navigation.sections
   palette:
@@ -65,8 +66,11 @@ plugins:
         - src/mdfts
 
 nav:
-    - "Home": index.md
-    - "Reference": 
+    - "Home": 
+        - index.md
+        - "Formats":
+            - format_ff.md
+    - "Code Reference": 
         - "At a glance": reference/ToC.md
         - "Src": reference/
 
