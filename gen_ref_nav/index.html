@@ -532,6 +532,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/serialize/" class="md-nav__link">
+        serialize.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/mdfts/utils/test_serialize/" class="md-nav__link">
+        test_serialize.py
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/mdfts/utils/topologify/" class="md-nav__link">
         topologify.py
       </a>
@@ -1303,7 +1331,8 @@ all of MD as it is not optimized for dense, information rich UIs.
 <span class="c1">### ONLY USER SETTINGS:</span>
 <span class="n">src_dir</span> <span class="o">=</span> <span class="s1">&#39;src&#39;</span>
 <span class="n">ref_dir</span> <span class="o">=</span> <span class="s1">&#39;reference&#39;</span>
-<span class="n">ignore_files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;setup.py&#39;</span><span class="p">,</span><span class="s1">&#39;__&#39;</span><span class="p">]</span>
+<span class="n">ignore_files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;setup.py&#39;</span><span class="p">]</span>
+<span class="n">ignore_file_prefixes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="p">]</span>
 <span class="n">ignore_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.egg-info&#39;</span><span class="p">,</span><span class="s1">&#39;__&#39;</span><span class="p">]</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">skeleton borrowed from https://github.com/mkdocstrings/mkdocstrings/blob/master/docs/gen_ref_nav.py</span>
@@ -1329,7 +1358,8 @@ Assumptions:
 ### ONLY USER SETTINGS:
 src_dir = 'src'
 ref_dir = 'reference'
-ignore_files = ['setup.py','__']
+ignore_files = ['setup.py']
+ignore_file_prefixes = ['_']
 ignore_dirs = ['.egg-info','__']
 """
 skeleton borrowed from https://github.com/mkdocstrings/mkdocstrings/blob/master/docs/gen_ref_nav.py
@@ -1517,6 +1547,8 @@ indentation = 4</div>
         <span class="k">continue</span>
     <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span> <span class="p">[</span><span class="n">ele</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">ignore_files</span> <span class="k">if</span> <span class="p">(</span><span class="n">ele</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="p">):</span> <span class="c1">#check if elements that we want to ignore occur</span>
         <span class="k">continue</span>
+    <span class="k">if</span> <span class="nb">bool</span><span class="p">(</span> <span class="p">[</span><span class="n">ele</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">ignore_file_prefixes</span> <span class="k">if</span> <span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">ele</span><span class="p">))]</span> <span class="p">):</span> <span class="c1">#check if elements that we want to ignore occur</span>
+        <span class="k">continue</span>
 
     <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
     <span class="n">module_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">src_dir</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span> 
@@ -1559,6 +1591,8 @@ for path in sorted(Path(src_dir).glob("**/*")):
     if not path.name.endswith('py'):
         continue
     if bool( [ele for ele in ignore_files if (ele in path.name)] ): #check if elements that we want to ignore occur
+        continue
+    if bool( [ele for ele in ignore_file_prefixes if (path.name.startswith(ele))] ): #check if elements that we want to ignore occur
         continue
 
     paths.append(str(path))
