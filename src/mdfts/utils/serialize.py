@@ -1,11 +1,11 @@
 """ Helper tools to create objects that automatically serialize and deserialize
-By serializing to dictionary, can trivially read/write with (json).
+
+By serializing to dictionary, can trivially read/write with (e.g. json).
 (Provided that the dictionary only has basic data types, we don't do type checking here)
 
 Note:
-    I envision simply needing to have classes subclass Serializable and decorate...
-    and then use decorators to track which variables need serialization/deseriazliation
-        and also track complexity of the objects being serialized 
+    I envision simply needing to have classes subclass Serializable...
+    or use decorators to track which variables need serialization/deseriazliation
 
 Todo:
     - decorators to track variables that can be saved to and read from dictionaries.
@@ -28,8 +28,8 @@ import inspect
 # def serialize(tracked_args):
 
 
-class Meta(type):
-    """to inject default class variables into a class
+class serial_tracking(type):
+    """metaclass to inject default class variables into a class
 
     Can also use to change the __str__ and __repr__ of a class.
     AH, e.g. I can use the metaclass in a decorator!
@@ -50,7 +50,9 @@ class Serializable(object):
 
     Note:
         serializes from and serializes *to* an OrderedDict
+
         Should be able to handle general objects that need to get serialized.
+
         Can override the to_dict and from_dict functions, e.g. to handle special formatting.
         (esp. for ForceField... think about if abbreviations should be handled by the object or by the parser.)
 
@@ -62,10 +64,9 @@ class Serializable(object):
         support creating from lists, although this is not ideal since one will rely on 
         implicit knowledge of ordering of variables, an implementation detail.
 
-        also: allow for lazy key matching
+        also: allow for lazy key matching?
 
         __init_from_dict not tested/working yet... 
-        or at least requires certain naming conventions of constructor for it to work out.
     """
 
     _serial_vars = []  # names of variables. should prob. default to self.__dict__...
@@ -136,9 +137,9 @@ class Serializable(object):
 
     @classmethod
     def init_from_dict(cls, d, *args, **kwargs):
-        """ 1) Try basic initialization. This is the case where the dict doesn't carry non-constructor parameters.
+        """
         Todo:
-            Not working yet
+            Not tested yet
         """
         try:
             obj = cls(*args, **kwargs)
@@ -147,6 +148,24 @@ class Serializable(object):
 
         # final update
         obj.from_dict(d)
+
+
+def with_metaclass(mcls):
+    """python 2 & 3 compatible metaclass decorator syntax
+    
+    see: https://stackoverflow.com/questions/22409430/portable-meta-class-between-python2-and-python3
+    
+    does not handle __slots__ variable that is in the `six` library
+    """
+
+    def decorator(cls):
+        body = vars(cls).copy()
+        # clean out class body
+        body.pop("__dict__", None)
+        body.pop("__weakref__", None)
+        return mcls(cls.__name__, cls.__bases__, body)
+
+    return decorator
 
 
 def serialize(track_args):
@@ -160,6 +179,14 @@ def serialize(track_args):
 
     Note:
         Can make the str() and repr() modifications by decorator as well!
+
+    Example:
+        >>> @serialize(['tracked1','tracked2','anothervar'])
+        >>> class custom_class(object):
+        >>>   __init__(self,x):
+        >>>     self.tracked1 = x
+        >>>     self.tracked2 = x**2
+        >>>     self.anothervar = x**4
     """
 
     def deco(cls):
@@ -182,13 +209,12 @@ def serialize(track_args):
                     cls.__name__,
                 )
 
-        class myclass(cls, Serializable, metaclass=tmpMeta):
+        # class myclass(cls, Serializable, metaclass=tmpMeta):
+        @with_metaclass(tmpMeta)
+        class myclass(cls, Serializable):
             """
             demonstrates proper subclassing of Serializable
             defines new _serial/extra_vars class variables
-
-            Todo:
-                have to modify metaclass syntax for python 2.x
             """
 
             _serial_vars = track_args  # class variables
@@ -216,3 +242,4 @@ def serialize(track_args):
         return myclass
 
     return deco
+

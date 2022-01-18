@@ -18,7 +18,8 @@ Assumptions:
 ### ONLY USER SETTINGS:
 src_dir = 'src'
 ref_dir = 'reference'
-ignore_files = ['setup.py','__']
+ignore_files = ['setup.py']
+ignore_file_prefixes = ['_']
 ignore_dirs = ['.egg-info','__']
 """
 skeleton borrowed from https://github.com/mkdocstrings/mkdocstrings/blob/master/docs/gen_ref_nav.py
@@ -55,6 +56,8 @@ for path in sorted(Path(src_dir).glob("**/*")):
     if not path.name.endswith('py'):
         continue
     if bool( [ele for ele in ignore_files if (ele in path.name)] ): #check if elements that we want to ignore occur
+        continue
+    if bool( [ele for ele in ignore_file_prefixes if (path.name.startswith(ele))] ): #check if elements that we want to ignore occur
         continue
 
     paths.append(str(path))

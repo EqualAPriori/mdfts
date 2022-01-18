@@ -1,4 +1,8 @@
-from serialize import Serializable, Meta, serialize
+import sys, os
+
+parent_dir = os.path.dirname(__file__)
+sys.path.insert(1, parent_dir)
+from serialize import Serializable, serialize
 
 
 @serialize(["x"])
