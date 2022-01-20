@@ -13,4 +13,4 @@ eggs/
 .installed.cfg
 
 # IntelliJ files
-mdfts.iml
+.idea
