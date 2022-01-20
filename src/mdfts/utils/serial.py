@@ -14,6 +14,8 @@ Todo:
         - use metaclass as aid to ensure _serial_vars is indeed defined
         - decorator that takes _serial_vars as argument
 """
+from __future__ import absolute_import, division, print_function
+
 from collections import OrderedDict
 import collections
 
@@ -36,7 +38,7 @@ class serial_tracking(type):
     """
 
     def __new__(cls, clsname, bases, clsdict):
-        c = super().__new__(cls, clsname, bases, clsdict)
+        c = super(serial_tracking).__new__(cls, clsname, bases, clsdict)
         c._serial_vars = []
         c._extra_vars = None
         # too clunky... will require classes to implement/define __clsname__
