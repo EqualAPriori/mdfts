@@ -11,3 +11,6 @@ eggs/
 *.egg-info/
 *.egg
 .installed.cfg
+
+# IntelliJ files
+.idea
