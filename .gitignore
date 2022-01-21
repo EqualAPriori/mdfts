@@ -15,3 +15,7 @@ eggs/
 # IntelliJ files
 .idea
 mdfts.iml
+
+# custom files
+_t* 
+site/
