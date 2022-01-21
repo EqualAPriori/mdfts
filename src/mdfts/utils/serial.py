@@ -97,7 +97,7 @@ class Serializable(object):
             can also support list, but that is not preferable since it relies on knowing
             the sequence of tracked variables in the class.
         """
-        print(self)
+        #print(self)
         if isinstance(d, collectionsABC.Mapping):  # dictlike
             for (k, v) in d.items():
                 if k in self._serial_vars:
@@ -228,18 +228,22 @@ def serialize(track_args):
                 self.__class__.__module__ = cls.__module__
 
             def __str__(self):  # pretier reporting to get around manual decorator
-                return "<{}.{} object at {}>".format(
-                    self.__class__.__module__, self.__class__.__name__, hex(id(self))
-                )
+                #ret = "<{}.{} object at {}>\n".format(
+                #    self.__class__.__module__, self.__class__.__name__, hex(id(self))
+                #)
+                #ret += "\n{}".format(cls.__str__(self))
+                ret = "<{}> {}".format(self.__class__.__name__,cls.__str__(self))
+                return ret
 
             def __repr__(self):  # pretier reporting to get around manual decorator
-                return "<{}.{}-wrapped {}.{} object at {}>".format(
+                ret =  "<{}.{}-wrapped {}.{} object at {}>".format(
                     serialize.__module__,
                     serialize.__name__,
                     self.__class__.__module__,
                     self.__class__.__name__,
                     hex(id(self)),
                 )
+                return ret
 
         return myclass
 

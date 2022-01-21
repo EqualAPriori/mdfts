@@ -12,6 +12,10 @@ class BeadType(object):
         self.name = name
         self.smear_length = smear_length
         self.charge = charge
+    def __str__(self):
+        return self.to_dict()
+    def __repr__(self):
+        return 'BeadType: {}'.format(self.to_dict())
 
 
 @serial.serialize(['kT', '_bead_types', '_potentials'])
@@ -56,3 +60,41 @@ class ForceField(object):
         if set(bead_names) != set(self.bead_names):
             raise ValueError("provided bead names don't match bead names in ForceField instance")
         self._bead_types = [self.get_bead_type(bn) for bn in bead_names]
+
+    # More transparent printing for debugging. I.e. make sure bead types are getting instantiated
+    def __str__(self):
+        ret = "\n"
+        ret += "BeadTypes: {}\n".format(
+                [bt.__str__() for bt in self._bead_types])
+        ret += "Potentials: {}".format([p.__str__() for p in self._potentials])
+        return ret
+        #return self.to_dict()
+
+    # Need customized-handling for _bead_types and _potentials to iterate through
+    # alternative is to do what `sim` does: define yet another `bead_types(list)`
+    # object that extends list, and put the custom get/set in that new object
+    # in the future, can further modify these functions to allow support for alternative representations
+    def custom_get(self,k):
+        if k == '_bead_types':
+            return [p.to_dict() for p in self._bead_types]
+        elif k == '_potentials':
+            return [p.to_dict() for p in self._potentials]
+        else:
+            return serial.Serializable.custom_get(self,k)  
+
+    def custom_set(self,k,v):
+        """right now completely over-writes _bead_types and _potentials.
+             
+        maybe want to raise some kind of error if bead types don't match?
+        """
+        if k == '_bead_types': 
+            self._bead_types = []
+            for bead_def in v: #assume `v` is a `list` of `bead_type` dictionaries
+                self._bead_types.append( BeadType(**bead_def) )
+        elif k == '_potentials':
+            self._potentials = []
+            for potential_def in v: #assume `v` is a `list` of `` dictionaries
+                pass #Implement once potentials are implemented
+                #perhaps looks like _POTENTIALTYPES[potential_name](**otherargs)
+        
+
