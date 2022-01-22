@@ -28,3 +28,10 @@ print("\n=== Test 3: elements of input can themselves be a mix of lists and dict
 print(">>> btl.from_dict([['A',1.0],{'name':'B','smear_length':2.0}])")
 btl.from_dict([['A',1.0],{'name':'B','smear_length':2.0}])
 print(btl)
+
+
+print("\n=== Test 4: Using SerialzableTypedList ===")
+BTL = serial.SerializableTypedList(ff.BeadType)
+BTL.from_dict([['A',1.0],{'name':'B','smear_length':2.0}])
+print(BTL)
+
