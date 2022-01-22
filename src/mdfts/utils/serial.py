@@ -352,7 +352,7 @@ def serialize_list(cls):
             return ret
 
         def __repr__(self):
-            return super().__repr__() + " " + self.list.__repr__()
+            return super(myclass).__repr__() + " " + self.list.__repr__()
 
         """
         def __repr__(self):  # pretier reporting to get around manual decorator
@@ -419,7 +419,7 @@ class TypedList(collections.MutableSequence):
         return str(self.list)
 
     def __repr__(self):
-        return super().__repr__() + " " + self.list.__repr__()
+        return super(TypedList).__repr__() + " " + self.list.__repr__()
 
 
 class SerializableTypedList(collections.MutableSequence, Serializable):
@@ -508,4 +508,4 @@ class SerializableTypedList(collections.MutableSequence, Serializable):
         return ret
 
     def __repr__(self):
-        return super().__repr__() + " " + self.list.__repr__()
+        return super(SerializableTypedList).__repr__() + " " + self.list.__repr__()
