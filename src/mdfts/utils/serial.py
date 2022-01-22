@@ -97,7 +97,7 @@ class Serializable(object):
             can also support list, but that is not preferable since it relies on knowing
             the sequence of tracked variables in the class.
         """
-        #print(self)
+        # print(self)
         if isinstance(d, collectionsABC.Mapping):  # dictlike
             for (k, v) in d.items():
                 if k in self._serial_vars:
@@ -224,19 +224,17 @@ def serialize(track_args):
 
             def __init__(self, *args, **kwargs):
                 old_init(self, *args, **kwargs)
-                self.__class__.__name__ = cls.__name__  # retain info after decorating
-                self.__class__.__module__ = cls.__module__
 
-            def __str__(self):  # pretier reporting to get around manual decorator
-                #ret = "<{}.{} object at {}>\n".format(
+            def __str__(self):  # prettier reporting to get around manual decorator
+                # ret = "<{}.{} object at {}>\n".format(
                 #    self.__class__.__module__, self.__class__.__name__, hex(id(self))
-                #)
-                #ret += "\n{}".format(cls.__str__(self))
-                ret = "<{}> {}".format(self.__class__.__name__,cls.__str__(self))
+                # )
+                # ret += "\n{}".format(cls.__str__(self))
+                ret = "<{}> {}".format(self.__class__.__name__, cls.__str__(self))
                 return ret
 
             def __repr__(self):  # pretier reporting to get around manual decorator
-                ret =  "<{}.{}-wrapped {}.{} object at {}>".format(
+                ret = "<{}.{}-wrapped {}.{} object at {}>".format(
                     serialize.__module__,
                     serialize.__name__,
                     self.__class__.__module__,
@@ -245,7 +243,69 @@ def serialize(track_args):
                 )
                 return ret
 
+        myclass.__name__ = cls.__name__  # retain info after decorating
+        myclass.__module__ = cls.__module__
         return myclass
 
     return deco
+
+
+def serialize_list(cls):
+    """ Take a `Serializable` classdef and make a Serializable list/container class for it.
+    """
+
+    class myclass(list, cls, Serializable):
+        """
+        demonstrates proper subclassing of Serializable
+        defines new _serial/extra_vars class variables
+        """
+
+        _serial_vars = []  # not used since we extend list and override to_dict()
+        _extra_vars = None
+
+        def to_dict(self):
+            return self.to_list()
+
+        def to_list(self):
+            return [el.to_dict() for el in self]
+
+        def from_dict(self, d):
+            """default behavior is to override"""
+            del self[:]
+            if isinstance(d, collectionsABC.Mapping):  # dictlike
+                for (k, v) in d.items():
+                    if isinstance(v, collectionsABC.Mapping):
+                        self.append(cls(**v))
+                    else:
+                        # assume elements are ordered same as arguments of `cls`
+                        self.append(cls(*v))
+            elif isinstance(d, collectionsABC.Iterable):
+                for v in d:
+                    if isinstance(v, collectionsABC.Mapping):
+                        self.append(cls(**v))
+                    else:
+                        # assume elements are ordered same as arguments of `cls`
+                        self.append(cls(*v))
+
+        def __str__(self):  # prettier reporting to get around manual decorator
+            ret = "<{}_list> {}".format(
+                self.__class__.__name__, [str(el) for el in self]
+            )
+            return ret
+
+        """
+        def __repr__(self):  # pretier reporting to get around manual decorator
+            ret = "<{}.{}-wrapped {}.{}_list object at {}>".format(
+                serialize.__module__,
+                serialize.__name__,
+                self.__class__.__module__,
+                self.__class__.__name__,
+                hex(id(self)),
+            )
+            return ret
+        """
+
+    myclass.__name__ = cls.__name__ + "_list"  # retain name
+    myclass.__module__ = cls.__module__
+    return myclass
 
