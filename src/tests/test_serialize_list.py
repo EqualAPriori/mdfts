@@ -23,3 +23,8 @@ print(">>> btl.from_dict(params)")
 btl.from_dict(params)
 print(btl)
 
+
+print("\n=== Test 3: elements of input can themselves be a mix of lists and dictionaries ===")
+print(">>> btl.from_dict([['A',1.0],{'name':'B','smear_length':2.0}])")
+btl.from_dict([['A',1.0],{'name':'B','smear_length':2.0}])
+print(btl)

@@ -273,19 +273,22 @@ def serialize_list(cls):
             """default behavior is to override"""
             del self[:]
             if isinstance(d, collectionsABC.Mapping):  # dictlike
-                for (k, v) in d.items():
-                    if isinstance(v, collectionsABC.Mapping):
-                        self.append(cls(**v))
-                    else:
-                        # assume elements are ordered same as arguments of `cls`
-                        self.append(cls(*v))
+                d_iterator = d.values()
             elif isinstance(d, collectionsABC.Iterable):
-                for v in d:
-                    if isinstance(v, collectionsABC.Mapping):
-                        self.append(cls(**v))
-                    else:
-                        # assume elements are ordered same as arguments of `cls`
-                        self.append(cls(*v))
+                d_iterator = d
+            else:
+                raise ValueError(
+                    "Unsupported input data type {}, can't load".format(type(d))
+                )
+            self.from_list(d_iterator)
+
+        def from_list(self, l):
+            for v in l:
+                if isinstance(v, collectionsABC.Mapping):
+                    self.append(cls(**v))
+                else:
+                    # assume elements are ordered same as arguments of `cls`
+                    self.append(cls(*v))
 
         def __str__(self):  # prettier reporting to get around manual decorator
             ret = "<{}_list> {}".format(
