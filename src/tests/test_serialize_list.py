@@ -35,3 +35,17 @@ BTL = serial.SerializableTypedList(ff.BeadType)
 BTL.from_dict([['A',1.0],{'name':'B','smear_length':2.0}])
 print(BTL)
 
+
+print("\n=== Test 5: See that both of these objects can use list-like functions ===")
+print(">>> btl.append(ff.BeadType('C'))")
+btl.append(ff.BeadType('C'))
+print(btl)
+
+print("")
+print(">>> BTL.append(ff.BeadType('D'))")
+BTL.append(ff.BeadType('D'))
+print(BTL)
+
+print("")
+print(">>> [str (el) for el in BTL[1:]]")
+print([str(el) for el in BTL[1:]])
