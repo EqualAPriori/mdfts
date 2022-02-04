@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+from .potential import _Potential
 from mdfts.utils import serial
 
 __all__ = ['BeadType', 'ForceField']
@@ -26,7 +27,7 @@ class ForceField(object):
     def __init__(self, kT=1.0):
         self.kT = kT
         self._bead_types = serial.SerializableTypedList(BeadType)
-        self._potentials = []
+        self._potentials = serial.SerializableTypedList(_Potential)
 
     @property
     def kT(self):
@@ -42,6 +43,10 @@ class ForceField(object):
     @property
     def bead_types(self):
         return self._bead_types
+
+    @bead_types.setter
+    def bead_types(self, value):
+        self._bead_types = serial.SerializableTypedList(BeadType, value)
 
     @property
     def bead_names(self):
@@ -74,27 +79,3 @@ class ForceField(object):
             [bt.__str__() for bt in self._bead_types])
         ret += "Potentials: {}".format([p.__str__() for p in self._potentials])
         return ret
-        #return self.to_dict()
-
-    # Need customized-handling for _bead_types and _potentials to iterate through
-    # alternative is to do what `sim` does: define yet another `bead_types(list)`
-    # object that extends list, and put the custom get/set in that new object
-    # in the future, can further modify these functions to allow support for alternative representations
-    def custom_get(self, k):
-        if k == '_potentials':
-            return [p.to_dict() for p in self._potentials]
-        else:
-            return serial.Serializable.custom_get(self, k)
-
-    def custom_set(self, k, v):
-        """right now completely over-writes _bead_types and _potentials.
-
-        maybe want to raise some kind of error if bead types don't match?
-        """
-        if k == '_potentials':
-            self._potentials = []
-            for potential_def in v: #assume `v` is a `list` of `` dictionaries
-                pass #Implement once potentials are implemented
-                #perhaps looks like _POTENTIALTYPES[potential_name](**otherargs)
-        else:
-            serial.Serializable.custom_set(self, k, v)
