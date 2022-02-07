@@ -88,7 +88,7 @@ class ForceField(object):
         return self._potentials
 
     def add_potential(self, potential):
-        """Add a BeadType to the ForceField"""
+        """Add a Potential to the ForceField"""
         # TODO: add warning if Potential using same BeadTypes already exists in ForceField
         self._potentials.append(potential)
 
