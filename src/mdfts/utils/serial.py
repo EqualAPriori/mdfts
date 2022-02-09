@@ -206,6 +206,16 @@ class Serializable(object):
             # then this could be problematic. we don't check for such eventualities here.
             # children classes can handle this case later
 
+    def __eq__(self, obj):
+        ret = isinstance(obj, self.__class__)
+        if not ret:
+            return False
+        else:
+            for k in self._serial_vars:
+                if getattr(self, k) != getattr(obj, k):
+                    return False
+            return True
+
     @classmethod
     def init_from_dict(cls, d, *args, **kwargs):
         """
@@ -486,6 +496,18 @@ class SerializableTypedList(collections.MutableSequence, Serializable):
             "Serializable container is a list, not dictionary, does not use key access"
         )
 
+    def __eq__(self, obj):
+        ret = isinstance(obj, self.__class__) and (self.oktype == obj.oktype)
+        if not ret:
+            return False
+        else:
+            if len(self) != len(obj):
+                return False
+            for ik, k in enumerate(self):
+                if self[ik] != obj[ik]:
+                    return False
+            return True
+
     # === SEQUENCE INTERFACE ===
     def check(self, v):
         if not isinstance(v, self.oktype):
@@ -620,10 +642,7 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         if has_many:
             self._types[key] = typ
             self._has_many[key] = True
-            if issubclass(typ, Serializable):
-                self._store[key] = SerializableTypedList(typ)
-            else:
-                self._store[key] = TypedList(typ)
+            self._store[key] = SerializableTypedList(typ)
         else:
             self._types[key] = typ
             self._has_many[key] = False
@@ -651,9 +670,14 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         else:
             if isinstance(value, (TypedList, SerializableTypedList)):
                 self.add_entry_type(key, value.oktype, has_many=True)
+
             else:
                 self.add_entry_type(key, type(value), has_many=False)
-        self._store[key] = self._types[key](value)
+
+        if isinstance(value, (TypedList, SerializableTypedList)):
+            self._store[key] = value
+        else:
+            self._store[key] = self._types[key](value)
 
     def __delitem__(self, key):
         del self._store[(key)]
