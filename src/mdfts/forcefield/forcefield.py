@@ -8,10 +8,11 @@ from .potential import _Potential
 from .beadtype import BeadType
 from mdfts.utils import serial
 
-__all__ = ['ForceField']
+__all__ = ["ForceField"]
+_potential_types = {("Gaussian", Gaussian), ("HarmonicBond", HarmonicBond)}
 
 
-@serial.serialize(['kT', 'bead_types', 'potentials'])
+@serial.serialize(["kT", "bead_types", "potentials"])
 class ForceField(object):
     """Container object for a force field
 
@@ -24,7 +25,10 @@ class ForceField(object):
         """Constructor for the ForceField class"""
         self.kT = kT
         self._bead_types = serial.SerializableTypedList(BeadType)
-        self._potentials = serial.SerializableTypedList(_Potential)
+        # self._potentials = serial.SerializableTypedList(_Potential)
+        self._potentials = serial.SerializableTypedDict()
+        for ptype_name, ptype_class in _potential_types.items():
+            self._potentials.add_entry_type(ptype_name, ptype_class, has_many=True)
 
     @property
     def kT(self):
@@ -60,7 +64,11 @@ class ForceField(object):
 
         # check that ForceField doesn't already contain a BeadType of the same name
         if bead_type.name in self.bead_names:
-            raise ValueError("ForceField instance already contains BeadType '{}'".format(bead_type.name))
+            raise ValueError(
+                "ForceField instance already contains BeadType '{}'".format(
+                    bead_type.name
+                )
+            )
 
         self._bead_types.append(bead_type)
 
@@ -73,14 +81,20 @@ class ForceField(object):
                 return bt
 
         # raise error if BeadType with specified name doesn't exist in ForceField
-        raise ValueError("ForceField instance does not contain BeadType '{}'".format(bead_name))
+        raise ValueError(
+            "ForceField instance does not contain BeadType '{}'".format(bead_name)
+        )
 
     def reorder_bead_types(self, bead_names):
         """Rearranges the order of BeadTypes in the ForceField. Useful when
         converting to PolyFTS format """
         if set(bead_names) != set(self.bead_names):
-            raise ValueError("provided bead names don't match bead names in ForceField instance")
-        self._bead_types = serial.SerializableTypedList(BeadType, *[self.get_bead_type(bn) for bn in bead_names])
+            raise ValueError(
+                "provided bead names don't match bead names in ForceField instance"
+            )
+        self._bead_types = serial.SerializableTypedList(
+            BeadType, *[self.get_bead_type(bn) for bn in bead_names]
+        )
 
     @property
     def potentials(self):
@@ -91,12 +105,13 @@ class ForceField(object):
         """Add a Potential to the ForceField"""
         # TODO: add warning if Potential using same BeadTypes already exists in ForceField
         self._potentials.append(potential)
+        # ^^^ Now, should do potential-type checking to put each potential into their
+        # appropriate list in the _potentials `SerializableTypedDict`
 
     def __str__(self):
         """Default method is overridden to allow for more transparent printing
         for debugging purposes"""
         ret = "\n"
-        ret += "BeadTypes: {}\n".format(
-            [bt.__str__() for bt in self._bead_types])
+        ret += "BeadTypes: {}\n".format([bt.__str__() for bt in self._bead_types])
         ret += "Potentials: {}".format([p.__str__() for p in self._potentials])
         return ret
