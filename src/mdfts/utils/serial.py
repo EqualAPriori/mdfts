@@ -616,6 +616,9 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         ret = "{}({})".format(type(self).__name__, self._store.__repr__())
         return ret
 
+    def __eq__(self, other):
+        return Serializable.__eq__(self, other)
+
     # === HELPERS ===
     def check(self, key, v):
         """check if `v` is of the right type for key `key`
