@@ -546,107 +546,30 @@ class SerializableTypedList(collections.MutableSequence, Serializable):
 
 class SerializableTypedDict(collections.MutableMapping, Serializable):
     """Create custom dict that type-checks its contents.
-    
-    TypedDict, restricted for use with Serializable classes. 
 
-    For creating a quick list containers when creating a new class is overkill.
+    For creating a quick container when creating a new class is overkill.
 
     Can be used as a light-weight schema in the vein of Marshmallow.
-    If using as a schema, not that *nested* schemas can only be preserved if one defines new classes defining the schemas. 
-    (i.e. a SerializableTypedDict constructed on the fly won't save its own schema and schemas of things it nests).
+    If using as a schema, note that *nested* schemas can only be preserved 
+    if one defines new classes defining the schemas to be nested. 
+    (i.e. if a SerializableTypedDict itself contains a SerializableTypedDict 
+    constructed on the fly, the nested SerializableTypedDict's schema won't be preserved).
 
-    Currently, from_dict defaults to *strict mode*, only updates entries if they already exist in the dictionary.
+    Currently, from_dict defaults to *strict mode* (`self._deserialization_strict=True`), 
+    only updates entries if they already exist in the dictionary.
+
     The non-strict mode performs a standard dictionary update (i.e. add new keys).
-    Can consider completely over-writing the dictionary upon loading, akin to the implementation in SerializableTypedList.
+
+    Can consider completely over-writing the dictionary upon loading, 
+    akin to the implementation in SerializableTypedList.
 
     Todo:
-        have the SerializableTypedDict preserve its own schema?
+        Have the SerializableTypedDict preserve its own schema? 
+        Or some way to save and load the schema? (essentially, self.keys, self._types, self._has_many)
     
     Note:
         used https://stackoverflow.com/questions/3387691/how-to-perfectly-override-a-dict/47361653#47361653 as reference
     """
-
-    def check(self, key, v):
-        """check if `v` is of the right type for key `key`
-        only works if key in this dictionary!
-        I.e. behavior when key not in dictionary should be handled elsewhere.
-    
-        Args:
-            v (instance)
-        """
-        if key not in self._store:  # new key-value pair, assess what type it is
-            raise KeyError("key {} not found".format(key))
-        elif self._has_many[key] == True:
-            if not isinstance(v, SerializableTypedList):
-                # if given value is not even a typed list
-                raise TypeError(
-                    "value for key {} must be a SerializableTypedList for type {}".format(
-                        key, self._types[key]
-                    )
-                )
-            else:  # must check if the types agree
-                if v.oktype != self._types[key]:
-                    raise TypeError(
-                        "{} contains type {} that is not the valid type ({}) for key {}".format(
-                            v, v.oktype, self._types[key], key
-                        )
-                    )
-        else:
-            if isinstance(v, SerializableTypedDict):
-                vprint(
-                    "Caution! Schema for SerializableTypedDicts may not be saved properly unless the schema for the SerializableTypedDict is defined somewhere in a class."
-                )
-            elif isinstance(v, SerializableTypedList):
-                # not used for now;  This would end up being a generic, un-type-checked SerializableTypedList
-                pass
-            elif not isinstance(v, (self._types[key], type(None))):
-                raise TypeError(
-                    "{} not a valid type ({}) for key {}".format(
-                        v, self._types[key], key
-                    )
-                )
-
-        return True
-
-    def add_entry_type(self, key, typ, has_many=None):
-        """initialize an appropriate typed entry
-        Args:
-            has_many (bool): used only if not None
-
-        Notes:
-            For use before setting any values.
-            Note that `typ` should be a class, i.e. it can't be a SerializableTypedList instantiated with an oktype. 
-            Hence, should do:
-
-                add_entry_type(key,typ,has_many=True)
-        
-            I.e. if one intuitively wants to do: 
-                add_entry_type(key,SerializableTypedList(typ))
-
-            because SerializableTypedList(typ) is an instance, one should simply use mydict['key'] = SerializableTypedList(typ)!
-        """
-        # For handling the "intuitive but wrong" behavior described in the Notes
-        if not inspect.isclass(typ):
-            if (
-                isinstance(typ, (TypedList, SerializableTypedList)) and has_many is None
-            ):  # The only exception
-                typ = typ.oktype
-                has_many = True
-            else:
-                raise TypeError(
-                    "template entry types can only be added for classes, not an instance like {}".format(
-                        typ
-                    )
-                )
-
-        if has_many:
-            self._types[key] = typ
-            self._has_many[key] = True
-            self._store[key] = SerializableTypedList(typ)
-        else:
-            self._types[key] = typ
-            self._has_many[key] = False
-            self._store[key] = None  # default to initialize
 
     # === MUTABLE MAPPING INTERFACE ===
     def __init__(self, *args, **kwargs):
@@ -693,6 +616,111 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         ret = "{}({})".format(type(self).__name__, self._store.__repr__())
         return ret
 
+    # === HELPERS ===
+    def check(self, key, v):
+        """check if `v` is of the right type for key `key`
+        only works if key in this dictionary!
+        I.e. behavior when key not in dictionary should be handled elsewhere, e.g. `__setitem__()`
+    
+        Args:
+            v (instance): should not be a class
+        """
+        if key not in self._store:  # new key-value pair, assess what type it is
+            raise KeyError("key {} not found".format(key))
+        elif self._has_many[key] == True:
+            if not isinstance(v, SerializableTypedList):
+                # if given value is not even a typed list
+                raise TypeError(
+                    "value for key {} must be a SerializableTypedList for type {}".format(
+                        key, self._types[key]
+                    )
+                )
+            else:  # must check if the types agree
+                if v.oktype != self._types[key]:
+                    raise TypeError(
+                        "{} contains type {} that is not the valid type ({}) for key {}".format(
+                            v, v.oktype, self._types[key], key
+                        )
+                    )
+        else:
+            if isinstance(v, SerializableTypedDict) and issubclass(
+                self._types[key], SerializableTypedDict
+            ):
+                vprint(
+                    "Caution! Schema for SerializableTypedDicts may not be saved properly unless the schema for the SerializableTypedDict is defined somewhere in a class."
+                )
+            elif isinstance(v, SerializableTypedList):
+                # not used for now;  This would end up being a generic, un-type-checked SerializableTypedList
+                # do not attempt to correct the schema here
+                # TODO:
+                #   handle this case more cleanly if it arises
+                pass
+            elif not isinstance(v, (self._types[key], type(None))):
+                raise TypeError(
+                    "{} not a valid type ({}) for key {}".format(
+                        v, self._types[key], key
+                    )
+                )
+
+        return True
+
+    def add_entry_type(self, key, typ, has_many=None):
+        """initialize an appropriate typed entry
+        Args:
+            has_many (bool): used only if not None
+
+        Notes:
+            For use before setting any values, i.e. to define the schema for this dict.
+            
+            Note that `typ` should be a class, i.e. it can't be a SerializableTypedList instantiated with an oktype. 
+         
+            I.e. if one intuitively wants to do: 
+                add_entry_type(key,SerializableTypedList(typ))  
+
+            one should actually do:
+
+                add_entry_type(key,typ,has_many=True)
+        
+            because SerializableTypedList(typ) is an instance of SerializableTypedList, and is not a proper type.
+            
+            The alternative is to use: `mydict['key'] = SerializableTypedList(typ)`
+        """
+        # For handling the "intuitive but wrong" behavior described in the Notes
+        if not inspect.isclass(typ):
+            if (
+                isinstance(typ, (TypedList, SerializableTypedList)) and has_many is None
+            ):  # The only exception
+                typ = typ.oktype
+                has_many = True
+            else:
+                raise TypeError(
+                    "template entry types can only be added for classes, not an instance like {}".format(
+                        typ
+                    )
+                )
+
+        if has_many:
+            self._types[key] = typ
+            self._has_many[key] = True
+            self._store[key] = SerializableTypedList(typ)
+        else:
+            self._types[key] = typ
+            self._has_many[key] = False
+            self._store[key] = None  # default to initialize
+
+    def copy_schema(self, other_dict):
+        """Clear this dictionary's schema and copy from another SerializableTypedDict
+
+        Args:
+            other_dict (SerializableTypedDict): source schema that we want to copy
+        """
+        self._store.clear()
+        self._types.clear()
+        self._has_many.clear()
+
+        for key in other_dict:
+            self.add_entry_type(key, other_dict._types[key], other_dict._has_many[key])
+
     # === SERIALIZABLE INTERFACE ===
     def to_dict(self):
         """always send out a dict
@@ -707,11 +735,10 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         """set state/variables from dict
         
         Note:
-            can also support list, but that is not preferable since it relies on knowing
-            the sequence of tracked variables in the class.
+            deserialization defaults to strict mode. "lax" mode behaves like a normal dictionary update.
 
         Todo:
-            add a mode that is for overwriting own dict.
+            add a mode that is for overwriting entire dict and schema
         """
         # print(self)
 

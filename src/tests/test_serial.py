@@ -66,7 +66,7 @@ class TestSerialize(unittest.TestCase):
         self.assertEqual(sl2.to_dict(), sl3.to_dict())
 
     def test_SerializbleTypedDict(self):
-        # Test different ways of initializing, and the has_many flag
+        # === Test different ways of initializing, and the has_many flag
         sd1 = serial.SerializableTypedDict()
         sd1.add_entry_type("sl1", int, has_many=False)
         sd1.add_entry_type("sl2", int, has_many=False)
@@ -79,13 +79,17 @@ class TestSerialize(unittest.TestCase):
         sd2["sl2"] = 2
         sd2.add_entry_type("sl3", int, has_many=True)
         sd2["sl3"].extend([7, 8, 9])
-        # print(sd1)
-        # print(sd2)
+        # alternatively:
+        # sd2["sl3"] = serial.SerializableTypedList(int)
+        # sd2["sl3"].extend([7,8,9])
+        # or, directly without first adding the entry type:
+        # sd2["sl3"] = serial.SerializableTypedList(int, *[7, 8, 9])
+
         self.assertEqual(sd1, sd2)
         self.assertEqual(sd1._types, sd2._types)
         self.assertEqual(sd1._has_many, sd2._has_many)
 
-        # test that to_dict and from_dict work even for more complex objects
+        # === test that to_dict and from_dict work even for more complex objects
         sd3 = serial.SerializableTypedDict()
         sd3.add_entry_type("t1", self.Srlz, has_many=True)
         sd4 = serial.SerializableTypedDict()
@@ -109,7 +113,7 @@ class TestSerialize(unittest.TestCase):
         )
         self.assertEqual(sd4.to_dict(), expected_data)
 
-        # test that from_dict does not add previously undefined keys to the schema
+        # === test that from_dict does not add previously undefined keys to the schema
         expected_data["t2"] = 50
         sd4.from_dict(expected_data)
 
@@ -117,9 +121,19 @@ class TestSerialize(unittest.TestCase):
         self.assertEqual(len(sd3), len(sd4))
         self.assertNotEqual(sd4.to_dict(), expected_data)
 
-        # Test that update() throws error b/c it doesn't know how to cast basic types (e.g. dict) into more complicated types (in this case, the expected self.Srlz class).
+        # === Test that update() throws error b/c it doesn't know how to cast basic types (e.g. dict) into more complicated types (in this case, the expected self.Srlz class).
         with self.assertRaises(TypeError):
             sd4.update(expected_data)
+
+        # === Test schema copying
+        sd5 = serial.SerializableTypedDict()
+        # first validate that strict from_dict doesn't update any keys
+        sd5.from_dict(sd4.to_dict())
+        self.assertEqual(len(sd5), 0)
+        # now copy schema and see that from_dict now works
+        sd5.copy_schema(sd4)
+        sd5.from_dict(sd4.to_dict())
+        self.assertEqual(sd4, sd5)
 
 
 if __name__ == "__main__":
