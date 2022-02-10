@@ -55,33 +55,33 @@ class TestForceField(unittest.TestCase):
 
         # check that forcefield serializes correctly
         f_dict = f.to_dict()
-        self.assertEqual(['kT', 'bead_types', 'potentials'], list(f_dict.keys()))
-        self.assertEqual(1.0, f_dict['kT'])
-        bead_type_A = f_dict['bead_types'][0]
+        self.assertEqual(['_kT', '_bead_types', '_potentials'], list(f_dict.keys()))
+        self.assertEqual(1.0, f_dict['_kT'])
+        bead_type_A = f_dict['_bead_types'][0]
         self.assertEqual(bead_type_A['name'], "A")
         self.assertEqual(bead_type_A['smear_length'], 2.0)
         self.assertEqual(bead_type_A['charge'], -1.0)
-        bead_type_B = f_dict['bead_types'][1]
+        bead_type_B = f_dict['_bead_types'][1]
         self.assertEqual(bead_type_B['name'], "B")
         self.assertEqual(bead_type_B['smear_length'], 5.0)
         self.assertEqual(bead_type_B['charge'], 1.0)
-        self.assertEqual([], list(f_dict['potentials']))
+        self.assertEqual([], list(f_dict['_potentials']))
 
         # check that we can initialize a new forcefield using serialized dictionary
         g = ff.ForceField()
         g.from_dict(f_dict)
         g_dict = g.to_dict()
-        self.assertEqual(['kT', 'bead_types', 'potentials'], list(g_dict.keys()))
-        self.assertEqual(1.0, g_dict['kT'])
-        bead_type_A = g_dict['bead_types'][0]
+        self.assertEqual(['_kT', '_bead_types', '_potentials'], list(g_dict.keys()))
+        self.assertEqual(1.0, g_dict['_kT'])
+        bead_type_A = g_dict['_bead_types'][0]
         self.assertEqual(bead_type_A['name'], "A")
         self.assertEqual(bead_type_A['smear_length'], 2.0)
         self.assertEqual(bead_type_A['charge'], -1.0)
-        bead_type_B = g_dict['bead_types'][1]
+        bead_type_B = g_dict['_bead_types'][1]
         self.assertEqual(bead_type_B['name'], "B")
         self.assertEqual(bead_type_B['smear_length'], 5.0)
         self.assertEqual(bead_type_B['charge'], 1.0)
-        self.assertEqual([], list(g_dict['potentials']))
+        self.assertEqual([], list(g_dict['_potentials']))
 
 
 if __name__ == '__main__':

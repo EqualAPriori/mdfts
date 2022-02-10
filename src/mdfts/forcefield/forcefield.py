@@ -11,7 +11,7 @@ from mdfts.utils import serial
 __all__ = ["ForceField"]
 
 
-@serial.serialize(["kT", "bead_types", "potentials"])
+@serial.serialize(["_kT", "_bead_types", "_potentials"])
 class ForceField(object):
     """Container object for a force field
 
@@ -43,12 +43,7 @@ class ForceField(object):
     @property
     def bead_types(self):
         """List of BeadTypes in the ForceField"""
-        return self._bead_types
-
-    @bead_types.setter
-    def bead_types(self, value):
-        """Set BeadTypes of the ForceField"""
-        self._bead_types = serial.SerializableTypedList(BeadType, value)
+        return list(self._bead_types)
 
     @property
     def bead_names(self):
@@ -81,24 +76,27 @@ class ForceField(object):
             "ForceField instance does not contain BeadType '{}'".format(bead_name)
         )
 
-    def reorder_bead_types(self, bead_names):
+    def reorder_bead_types(self, reordered_bead_names):
         """Rearranges the order of BeadTypes in the ForceField. Useful when
         converting to PolyFTS format."""
-        if set(bead_names) != set(self.bead_names):
+        if set(reordered_bead_names) != set(self.bead_names):
             raise ValueError(
                 "provided bead names don't match bead names in ForceField instance"
             )
         self._bead_types = serial.SerializableTypedList(
-            BeadType, *[self.get_bead_type(bn) for bn in bead_names]
+            BeadType, *[self.get_bead_type(bn) for bn in reordered_bead_names]
         )
 
     @property
     def potentials(self):
-        """List of Potentials in the ForceField"""
-        return self._potentials
+        """List of _Potentials in the ForceField"""
+        _potential_list = []
+        for v in self._potentials.values():
+            _potential_list.extend(v)
+        return _potential_list
 
     def add_potential(self, potential):
-        """Add a Potential to the ForceField"""
+        """Add a _Potential to the ForceField"""
 
         # check that the potential inherits from base _Potential class
         if not isinstance(potential, _Potential):
@@ -117,7 +115,7 @@ class ForceField(object):
     def __str__(self):
         """Default method is overridden to allow for more transparent printing
         for debugging purposes"""
-        ret = "\n"
-        ret += "BeadTypes: {}\n".format([bt.__str__() for bt in self._bead_types])
-        ret += "Potentials: {}".format([p.__str__() for p in self._potentials])
-        return ret
+        s = "\n"
+        s += "BeadTypes: {}\n".format([bt.__str__() for bt in self.bead_types])
+        s += "Potentials: {}".format([p.__str__() for p in self.potentials])
+        return s
