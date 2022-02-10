@@ -9,7 +9,6 @@ from .beadtype import BeadType
 from mdfts.utils import serial
 
 __all__ = ["ForceField"]
-_potential_types = {("Gaussian", Gaussian), ("HarmonicBond", HarmonicBond)}
 
 
 @serial.serialize(["kT", "bead_types", "potentials"])
@@ -25,10 +24,7 @@ class ForceField(object):
         """Constructor for the ForceField class"""
         self.kT = kT
         self._bead_types = serial.SerializableTypedList(BeadType)
-        # self._potentials = serial.SerializableTypedList(_Potential)
         self._potentials = serial.SerializableTypedDict()
-        for ptype_name, ptype_class in _potential_types.items():
-            self._potentials.add_entry_type(ptype_name, ptype_class, has_many=True)
 
     @property
     def kT(self):
@@ -87,7 +83,7 @@ class ForceField(object):
 
     def reorder_bead_types(self, bead_names):
         """Rearranges the order of BeadTypes in the ForceField. Useful when
-        converting to PolyFTS format """
+        converting to PolyFTS format."""
         if set(bead_names) != set(self.bead_names):
             raise ValueError(
                 "provided bead names don't match bead names in ForceField instance"
@@ -103,10 +99,20 @@ class ForceField(object):
 
     def add_potential(self, potential):
         """Add a Potential to the ForceField"""
-        # TODO: add warning if Potential using same BeadTypes already exists in ForceField
-        self._potentials.append(potential)
-        # ^^^ Now, should do potential-type checking to put each potential into their
-        # appropriate list in the _potentials `SerializableTypedDict`
+
+        # check that the potential inherits from base _Potential class
+        if not isinstance(potential, _Potential):
+            raise TypeError("potential must be of type _Potential")
+
+        # create entry for potential type if it doesn't exist already
+        potential_class = potential.__class__
+        potential_class_name = potential_class.__name__
+        if potential_class_name not in self._potentials.keys():
+            self._potentials.add_entry_type(potential_class_name, potential_class, has_many=True)
+
+        # add potential
+        # TODO: add warning if _Potential using same BeadTypes already exists in ForceField
+        self._potentials[potential_class_name].append(potential)
 
     def __str__(self):
         """Default method is overridden to allow for more transparent printing
