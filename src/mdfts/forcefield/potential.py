@@ -1,30 +1,42 @@
 """
-potential.py: Contains a base class used to specify interactions between
-BeadTypes.
+potential.py: Contains base classes used to specify interactions between
+BeadTypes and parameters for those interactions.
+
+All parameters will inherit from the _Parameter class while potentials will
+inherit from either _Potential or _PairPotential (might add more base classes
+later).
 """
 from __future__ import absolute_import, division, print_function
-
-from collections import OrderedDict
 
 from .beadtype import BeadType
 from mdfts.utils import serial
 
-__all__ = ['_Parameter', '_Potential']
+__all__ = ['_Parameter', '_Potential', '_PairPotential']
 
 
-@serial.serialize(['value', 'fixed'])
+###############################################################################
+# PARAMETERS
+###############################################################################
+
+
+@serial.serialize(['_value', '_fixed'])
 class _Parameter(object):
     """Container object for _Potential parameters
 
     Each parameter in a potential will inherit from this base class.
     """
 
-    def __init__(self, name, parameter_type, value, fixed):
+    def __init__(self, potential, parameter_type, value, fixed):
         """Constructor for the _Parameter class"""
-        self.name = name
+        self._potential = potential
         self._type = parameter_type
         self._value = value
         self._fixed = fixed
+
+    @property
+    def potential(self):
+        """_Potential instance the parameter is associated with"""
+        return self._potential
 
     @property
     def type(self):
@@ -68,7 +80,12 @@ class _Parameter(object):
         self._fixed = value
 
 
-@serial.serialize(['bead_types', 'parameters'])
+###############################################################################
+# POTENTIAL BASE CLASSES
+###############################################################################
+
+
+@serial.serialize(['_bead_types'])
 class _Potential(object):
     """Container object for a potential
 
@@ -78,24 +95,26 @@ class _Potential(object):
     """
     
     _NUM_BEAD_TYPES = 1
-    _PARAMETER_NAMES = []
+    _SERIALIZED_PARAMETERS = []
+    _NON_SERIALIZED_PARAMETERS = []
 
     def __init__(self, *args, **kwargs):
         """Constructor for the _Potential base class"""
         self.bead_types = args
-        self._parameters = serial.SerializableTypedList(_Parameter)
+        self._parameters = serial.SerializableTypedDict()
+        for p in self._SERIALIZED_PARAMETERS:
+            self._parameters[p.__name__] = p(self)
+            self._serial_vars.append(p.__name__)
+        for p in self._NON_SERIALIZED_PARAMETERS:
+            self._parameters[p.__name__] = p(self)
 
     def __getattr__(self, item):
-        if item in self._PARAMETER_NAMES:
-            for p in self._parameters:
-                if p.name == item:
-                    return p
-        raise AttributeError("'{}' object has no attribute '{}'".format(self.__class__.__name__, item))
+        return self._parameters[item]
 
     @property
     def bead_types(self):
         """List of BeadTypes in the Potential"""
-        return self._bead_types
+        return list(self._bead_types)
 
     @bead_types.setter
     def bead_types(self, value):
@@ -106,7 +125,7 @@ class _Potential(object):
 
     def compare_bead_types(self, other_potential):
         """Checks if another Potential shares the same BeadTypes as this
-        Potential."""
+        Potential"""
 
         # check that other potential is of type _Potential
         if not isinstance(other_potential, _Potential):
@@ -120,26 +139,11 @@ class _Potential(object):
         # TODO: condition only works for _NUM_BEAD_TYPES<=2. Need to generalize
         return set(self.bead_types) == set(other_potential.bead_types)
 
-    @property
-    def parameters(self):
-        """List of _Parameters in the Potential"""
-        return self._parameters
 
-    @parameters.setter
-    def parameters(self, value):
-        """Set _Parameters of the Potential"""
+class _PairPotential(_Potential):
+    """Container object for pair potentials
 
-        # check that correct number of parameters are being set
-        if len(value) != len(self._PARAMETER_NAMES):
-            raise ValueError("attempted to set incorrect number of Parameters")
+    The only difference between this class and _Potential is the number of
+    BeadTypes"""
 
-        # add parameters to temporary list
-        _tmp = [None] * len(self._PARAMETER_NAMES)
-        for p in value:
-            if p.name not in self._PARAMETER_NAMES:
-                raise ValueError("{} is not a valid parameter for the {} potential".format(p.name,
-                                                                                           self.__class__.__name__))
-            _tmp[self._PARAMETER_NAMES.index(p.name)] = p
-
-        # set parameters equal to that of the temporary variable
-        self._parameters = serial.SerializableTypedList(_Parameter, *_tmp)
+    _NUM_BEAD_TYPES = 2
