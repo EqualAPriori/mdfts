@@ -597,10 +597,11 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
             else:
                 self.add_entry_type(key, type(value), has_many=False)
 
-        if isinstance(value, (TypedList, SerializableTypedList)):
-            self._store[key] = value
-        else:
-            self._store[key] = self._types[key](value)
+        self._store[key] = value
+        # if isinstance(value, (TypedList, SerializableTypedList)):
+        #     self._store[key] = value
+        # else:
+        #     self._store[key] = self._types[key](value)
 
     def __delitem__(self, key):
         del self._store[(key)]
