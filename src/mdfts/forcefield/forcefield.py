@@ -52,7 +52,6 @@ class ForceField(object):
 
     def add_bead_type(self, bead_type):
         """Add a BeadType to the ForceField"""
-
         # check that ForceField doesn't already contain a BeadType of the same name
         if bead_type.name in self.bead_names:
             raise ValueError(
@@ -65,7 +64,6 @@ class ForceField(object):
 
     def get_bead_type(self, bead_name):
         """Returns a BeadType of the specified name"""
-
         # return bead type of specified name if it exists in ForceField
         for bt in self.bead_types:
             if bead_name == bt.name:
@@ -97,10 +95,9 @@ class ForceField(object):
 
     def add_potential(self, potential):
         """Add a _Potential to the ForceField"""
-
         # check that the potential inherits from base _Potential class
         if not isinstance(potential, _Potential):
-            raise TypeError("potential must be of type _Potential")
+            raise TypeError("potential must be of type _Potential or inherit from it")
 
         # create entry for potential type if it doesn't exist already
         potential_class = potential.__class__

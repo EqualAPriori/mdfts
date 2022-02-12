@@ -100,6 +100,8 @@ class _Potential(object):
 
     def __init__(self, *args, **kwargs):
         """Constructor for the _Potential base class"""
+        # set bead types of the potential
+        # TODO: have ability to have multiple bead types
         self.bead_types = args
         self._parameters = serial.SerializableTypedDict()
         for p in self._SERIALIZED_PARAMETERS:
@@ -126,7 +128,6 @@ class _Potential(object):
     def compare_bead_types(self, other_potential):
         """Checks if another Potential shares the same BeadTypes as this
         Potential"""
-
         # check that other potential is of type _Potential
         if not isinstance(other_potential, _Potential):
             raise TypeError("other potential must be type _Potential or inherit from it")
