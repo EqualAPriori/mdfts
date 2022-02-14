@@ -46,29 +46,13 @@ class TestFilter(unittest.TestCase):
         f = filterclass(obj1, obj2, [obj3, obj4])
 
         self.assertFalse(f.match(obj1))  # returns False b/c unequal # keys in pattern
-        self.assertTrue(f.match(obj3, obj2, obj1))
+        self.assertTrue(f.match(obj3, obj2, obj1))  # order-insensitive by default
         self.assertTrue((obj3, obj2, obj1) in f)  # alternative syntax for match
 
         f = filterclass([obj1, obj3])  # 1-body filter with 2 elements
         self.assertTrue(f.match(obj1))
 
         f = filterclass([obj1, obj3], obj1, obj2)  # 1-body filter with 2 elements
-        self.assertTrue(f.match(obj1, obj3, obj2))
-
-    def run_filterSet(self, obj1, obj2, obj3, obj4):
-        """basic tests to be repeated for different object types"""
-        # 3-body filter. e.g. same syntax as itertools.
-        f = myfilter.FilterSet(obj1, obj2, [obj3, obj4])
-
-        self.assertFalse(f.match(obj1))  # returns False b/c unequal # keys in pattern
-        self.assertTrue(f.match(obj3, obj2, obj1))
-
-        f = myfilter.FilterSet([obj1, obj3])  # 1-body filter with 2 elements
-        self.assertTrue(f.match(obj1))
-
-        f = myfilter.FilterSet(
-            [obj1, obj3], obj1, obj2
-        )  # 1-body filter with 2 elements
         self.assertTrue(f.match(obj1, obj3, obj2))
 
     def test_FilterBasic(self):
@@ -133,6 +117,16 @@ class TestFilter(unittest.TestCase):
     # test FilterSet
     def test_FilterSet(self):
         self.run_filters(myfilter.FilterSet, 1, 2, 3, 4)
+
+        self.assertTrue(
+            myfilter.eq_order_insensitive(((2, 1), (1, 2)), ((2, 1), (1, 2)))
+        )
+        self.assertTrue(
+            myfilter.eq_order_insensitive(((2, 1, 3), (1, 2)), ((2, 1), (1, 2, 3)))
+        )
+
+    def test_TypedFilterSet(self):
+        self.run_filters(myfilter.TypedFilterSet, 1, 2, 3, 4)
 
 
 if __name__ == "__main__":
