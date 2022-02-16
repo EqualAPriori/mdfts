@@ -1,0 +1,27 @@
+>>> POTENTIAL Gaussian_D4_D4
+{'Epsilon' : 0.0000e+00 ,
+ 'B' : 3.9391e-01 ,
+ 'Kappa' : 4.4444e-01 ,
+ 'Dist0' : 0.0000e+00 ,
+ 'Sigma' : 1.0000e+00 }
+>>> POTENTIAL Gaussian_Bpba_D4
+{'Epsilon' : 0.0000e+00 ,
+ 'B' : 2.9232e-01 ,
+ 'Kappa' : 4.4444e-01 ,
+ 'Dist0' : 0.0000e+00 ,
+ 'Sigma' : 1.0000e+00 }
+>>> POTENTIAL Gaussian_Bpba_Bpba
+{'Epsilon' : 0.0000e+00 ,
+ 'B' : 1.8974e-01 ,
+ 'Kappa' : 4.4444e-01 ,
+ 'Dist0' : 0.0000e+00 ,
+ 'Sigma' : 1.0000e+00 }
+>>> POTENTIAL HarmonicBond_Bpba_Bpba
+{'Dist0' : 3.8718e-01 ,
+ 'FConst' : 1.7903e+03 }
+>>> POTENTIAL HarmonicBond_Bpba_D4
+{'Dist0' : 4.1892e-01 ,
+ 'FConst' : 1.4345e+03 }
+>>> POTENTIAL HarmonicBond_D4_D4
+{'Dist0' : 4.5977e-01 ,
+ 'FConst' : 1.1765e+03 }

@@ -39,3 +39,8 @@ class HarmonicBond(_PairPotential):
     """Container object for a harmonic bond potential"""
 
     _SERIALIZED_PARAMETERS = [K, r0]
+
+    def from_sim_specification(self, sim_spec, kT=1.0):
+        super(HarmonicBond, self).from_sim_specification(sim_spec, kT=kT)
+        self.K.value = sim_spec.parameters["FConst"] / kT
+        self.r0.value = sim_spec.parameters["Dist0"]
