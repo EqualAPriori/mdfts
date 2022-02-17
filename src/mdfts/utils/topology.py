@@ -21,7 +21,6 @@ from operator import itemgetter
 import mdtraj
 import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt
 
 # local imports
 
@@ -113,7 +112,7 @@ class Topology(mdtraj.core.topology.Topology):
         """
         g = chain_top.to_bondgraph()
         nx.draw_networkx(g)
-        plt.show()  
+         
         # check for close-loop in chain
         has_cycle = False
         try:
@@ -259,9 +258,11 @@ class Topology(mdtraj.core.topology.Topology):
         return fts_param
 
 if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+    
     pdb_list = ['test_point.pdb', 'test_linear.pdb',
-                'test_comb.pdb','test_comb2.pdb','test_star.pdb']
-    mode = 3
+                'test_comb.pdb','test_comb2.pdb','test_star.pdb','test_cycle.pdb']
+    mode = 5
     top = Topology()
     top.add_chain_from_pdb(pdb_list[mode], 3, chain_name='POLYMER')
     fts_param = top.fts_param
@@ -269,3 +270,4 @@ if __name__ == "__main__":
     print('{} chains'.format(top.n_chains))
     s = dict_to_string(fts_param, 'chain', n_indent=0)
     print('\n' + s)
+    plt.show() 
