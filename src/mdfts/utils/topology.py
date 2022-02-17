@@ -50,10 +50,10 @@ class Topology(mdtraj.core.topology.Topology):
             system_pdb (str, optional): pdb describes system. Defaults to None.
         """
         mdtraj.core.topology.Topology.__init__(self)
-        self.n_chain_types = {}
-        self.atom_types = []
-        self.chain_types = []
-        self.fts_param = {}
+        self._n_per_chaintype = {}
+        self._atom_types = []
+        self._chain_types = []
+        self._fts_param = {}
 
     def add_chain_from_pdb(self, pdb, n_copies, chain_name = None):
         """Create new chains and add to the topology from pdb file 
@@ -68,9 +68,9 @@ class Topology(mdtraj.core.topology.Topology):
         topology = mdtraj.load(pdb).topology
 
         if not chain_name:
-            chain_name = 'chain{}'.format(len(self.n_chain_types))
-        self.n_chain_types.update({chain_name: n_copies})
-        self.chain_types.append(chain_name)
+            chain_name = 'chain{}'.format(len(self._n_per_chaintype))
+        self._n_per_chaintype.update({chain_name: n_copies})
+        self._chain_types.append(chain_name)
 
         for i in range(n_copies): 
             atom_map = {} 
@@ -90,7 +90,7 @@ class Topology(mdtraj.core.topology.Topology):
                 a2 = atom_map[a2]
                 self.add_bond(a1, a2, type=bond.type, order=bond.order)
         
-        self.fts_param.update({'chain{}'.format(len(self.chain_types)): self.get_fts_chain_param(topology, chain_name)})
+        self._fts_param.update({'chain{}'.format(len(self._chain_types)): self.get_fts_chain_param(topology, chain_name)})
 
     def add_chains_from_yaml(self, yaml):
         """Create new chains and add to the topology from yaml file
@@ -257,9 +257,29 @@ class Topology(mdtraj.core.topology.Topology):
                 fts_param.update({'sidearmtype{}'.format(arm_i+1): arm_param})
         return fts_param
 
+    @property
+    def n_per_chaintype(self):
+        """Get the number of chains for each chain type in the Topology"""
+        return self._n_per_chaintype
+
+    @property
+    def chain_types(self):
+        """Get the number of chain types in the Topology"""
+        return self._chain_types
+
+    @property
+    def atom_types(self):
+        """Get the number of atom types in the Topology"""
+        return self._atom_types
+
+    @property
+    def fts_param(self):
+        """Get the dictionary of FTS parameters for all chain types"""
+        return self._fts_param
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    
+
     pdb_list = ['test_point.pdb', 'test_linear.pdb',
                 'test_comb.pdb','test_comb2.pdb','test_star.pdb','test_cycle.pdb']
     mode = 5
@@ -268,6 +288,7 @@ if __name__ == "__main__":
     fts_param = top.fts_param
     print('{} atoms'.format(top.n_atoms))
     print('{} chains'.format(top.n_chains))
+    print('n_per_chaintype: ',top.n_per_chaintype)
     s = dict_to_string(fts_param, 'chain', n_indent=0)
     print('\n' + s)
     plt.show() 
