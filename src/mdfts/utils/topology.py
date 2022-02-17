@@ -1,9 +1,11 @@
 """
 Read files (pdb, yaml) and create topology of the system
 Check chain architecture and store chain parameters for FTS
+    for comb structure: assumes the first detected linear segment is backbone        
 Currently, register chains in pdb as new chain types everytime add_chain_from_pdb is called
 
 To do:
+    Where to get information about chain statistics to use in FTS, default is DGC
     Create topology from yaml file
     Export to sim
     A way to create topology from a full pdb (including all chains in the system)
@@ -19,6 +21,7 @@ from operator import itemgetter
 import mdtraj
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
 
 # local imports
 
@@ -35,7 +38,6 @@ def dict_to_string(fts_param, dict_name, n_indent=1):
             s += '\n' + sub_s 
     s += '  '*n_indent + '}\n'
     return s                
-
 
 class Topology(mdtraj.core.topology.Topology):
     """Create a new topology based on mdtraj topology class
@@ -97,6 +99,7 @@ class Topology(mdtraj.core.topology.Topology):
         Args:
             yaml (str): _description_
         """
+
     def get_fts_chain_param(self, chain_top, chain_name, chain_stat='DGC'):
         """_summary_
 
@@ -109,8 +112,8 @@ class Topology(mdtraj.core.topology.Topology):
             dict: dictionary of FTS parameters for this chain
         """
         g = chain_top.to_bondgraph()
-        #nx.draw_networkx(g)
-        #plt.show()  
+        nx.draw_networkx(g)
+        plt.show()  
         # check for close-loop in chain
         has_cycle = False
         try:
@@ -257,7 +260,7 @@ class Topology(mdtraj.core.topology.Topology):
 
 if __name__ == "__main__":
     pdb_list = ['test_point.pdb', 'test_linear.pdb',
-                'test_comb.pdb','test_star.pdb']
+                'test_comb.pdb','test_comb2.pdb','test_star.pdb']
     mode = 3
     top = Topology()
     top.add_chain_from_pdb(pdb_list[mode], 3, chain_name='POLYMER')
