@@ -146,15 +146,15 @@ class TestFilter(unittest.TestCase):
 
         # initialize with shorthand, names only
         bf4 = mdfts.forcefield.beadtype.BeadFilter.init_from_dict([["b2"], ["b2"]])
-        self.assertFalse(bf2, bf4)  # haven't properly updated the BeadTypes yet
+        self.assertNotEqual(bf2, bf4)  # haven't properly updated the BeadTypes yet
         bf4.align_to_dict({"b2": b2})
-        self.assertTrue(bf2, bf4)
+        self.assertEqual(bf2, bf4)
 
         # test round tripping
-        self.assertFalse(bf1, bf2)
+        self.assertNotEqual(bf1, bf2)
         d = bf1.to_dict()
         bf2.from_dict(d)
-        self.assertTrue(bf1, bf2)
+        self.assertEqual(bf1, bf2)
 
         # initializing bead filter with just names
         bf1.from_dict([["asdf"], ["qwer", "zxcv"]])
@@ -165,8 +165,8 @@ class TestFilter(unittest.TestCase):
         print(bf1.to_dict())
         bead_types = {"asdf": b1, "qwer": b2, "zxcv": b1}
         bf1.align_to_dict(bead_types)
-        print(bf1.to_dict())
-        self.assertFalse(bf1, bf5)
+        print(bf1.to_dict())  # should see that the charges are now updated
+        self.assertNotEqual(bf1, bf5)
 
         # === Test potentials ===
         g1 = mdfts.forcefield.Gaussian(b1, b2)
@@ -197,10 +197,16 @@ class TestFilter(unittest.TestCase):
         ff2.from_dict(ff1.to_dict())
         self.assertEqual(ff2, ff1)
 
-        ff3 = (
-            mdfts.forcefield.ForceField()
-        )  # new way automatically infers potential schema
+        # new way automatically infers potential schema
+        ff3 = mdfts.forcefield.ForceField()
+        ff3.from_dict(ff1.to_dict())
         self.assertEqual(ff1, ff3)
+
+        # === Test saving and loading ===
+        ffname = "_test_ff.yaml"
+        ff1.save(ffname)
+        ff4 = mdfts.forcefield.ForceField(ffname=ffname)
+        self.assertEqual(ff4, ff1)
 
 
 if __name__ == "__main__":

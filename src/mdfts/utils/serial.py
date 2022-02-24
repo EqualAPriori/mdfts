@@ -1034,7 +1034,7 @@ class SerializableFilterSet(FilterSet, Serializable):
             else:
                 raise ValueError("value for key `ordered` must be `bool`")
         elif k in ["_oktype", "type", "oktype"]:
-            self._oktype = oktype
+            self._oktype = v
             # really should not allow setting of oktype this way, dangerous
         elif k in ["_pattern", "pattern"]:
             res = []

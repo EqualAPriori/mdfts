@@ -13,6 +13,7 @@ from .potential_gaussian import Gaussian
 from .potential_harmonic_bond import HarmonicBond
 from .beadtype import BeadType
 from mdfts.utils import serial
+from mdfts.utils import yamlhelper
 
 __all__ = ["load_from_sim_ff", "ForceField"]
 
@@ -129,11 +130,14 @@ class ForceField(object):
     Potentials can be added to the force field through various methods.
     """
 
-    def __init__(self, kT=1.0):
+    def __init__(self, ffname=None, kT=1.0):
         """Constructor for the ForceField class"""
         self.kT = kT
         self._bead_types = serial.SerializableTypedList(BeadType)
         self._potentials = serial.SerializableTypedDict()
+        if isinstance(ffname, str):
+            ffdef = yamlhelper.load(ffname)
+            self.from_dict(ffdef)
 
     @property
     def kT(self):
@@ -158,6 +162,10 @@ class ForceField(object):
     def bead_names(self):
         """List of bead names of the ForceField"""
         return [bt.name for bt in self.bead_types]
+
+    @property
+    def bead_type_dict(self):
+        return {bt.name: bt for bt in self.bead_types}
 
     def add_bead_type(self, bead_type):
         """Add a BeadType to the ForceField"""
@@ -248,27 +256,24 @@ class ForceField(object):
         s += "Potentials: {}".format([p.__str__() for p in self.potentials])
         return s
 
+    # ===== Helper methods for serialization
     def from_dict(self, d):
         self.infer_potential_schema(d)  # infer the potential schema
 
         serial.Serializable.from_dict(self, d)
 
-        bead_type_dict = {bt.name: bt for bt in self.bead_types}
         for ps in self._potentials.values():
             for p in ps:
-                p._bead_types.align_to_dict(bead_type_dict)
-
-    def init_from_dict(cls, d, *args, **kwargs):
-        try:
-            obj = cls()
-        except:
-            print("Could not initialize {}".format(cls))
-
-        # final update
-        obj.from_dict(d)
-        return obj
+                p._bead_types.align_to_dict(self.bead_type_dict)
 
     def infer_potential_schema(self, d):
         potentials = d["_potentials"]
         for k in potentials:
             self._potentials.add_entry_type(k, _POTENTIAL_TYPES[k], has_many=True)
+
+    def save(self, filename="ff.yaml"):
+        yamlhelper.save_dict(filename, self.to_dict())
+
+    def load(self, filename="ff.yaml"):
+        ffdef = yamlhelper.load(filename)
+        self.from_dict(ffdef)
