@@ -48,9 +48,9 @@ def vprint(msg):
 
 def with_metaclass(mcls):
     """python 2 & 3 compatible metaclass decorator syntax
-    
+
     see: https://stackoverflow.com/questions/22409430/portable-meta-class-between-python2-and-python3
-    
+
     does not handle __slots__ variable that is in the `six` library
     """
 
@@ -111,7 +111,7 @@ def decode(thing, target_type=None):
 
 # ===== Main Code =====
 class Serializable(object):
-    """ Serializable object
+    """Serializable object
 
     Note:
         deserializes from and serializes *to* an OrderedDict
@@ -121,20 +121,20 @@ class Serializable(object):
         Can override the to_dict and from_dict functions, e.g. to handle special formatting.
         (esp. for ForceField... think about if abbreviations should be handled by the object or by the parser.)
 
-        In order to initialize from class, the dict either needs to contain enough 
+        In order to initialize from class, the dict either needs to contain enough
         input variables to initialize (and no extra variables),
         or last resort the class constuctor must be able to take no arguments (i.e. all optional).
 
-        IMPORTANT, to_dict() is ~ supposed to give a flat, json/yaml-ready format. 
+        IMPORTANT, to_dict() is ~ supposed to give a flat, json/yaml-ready format.
         Another potential method is to output actually a dictionary of the tracked variables, without flattening... I.e. maybe the encoding should be left to json. While this produces python-usable dictionaries with objects, it is not technically serializable if, for instance, one of the variables stores a non-basic type and non-serializable type.
 
     Todo:
-        support creating from lists, although this is not ideal since one will rely on 
+        support creating from lists, although this is not ideal since one will rely on
         implicit knowledge of ordering of variables, an implementation detail.
 
         also: allow for lazy key matching?
 
-        __init_from_dict not tested/working yet... 
+        __init_from_dict not tested/working yet...
     """
 
     _serial_vars = []  # names of variables. should prob. default to self.__dict__...
@@ -149,7 +149,7 @@ class Serializable(object):
 
     def to_dict(self):
         """always send out a dict
-        
+
         Essentially, this dict is the *state* of the system!"""
         od = OrderedDict()
         for k in self._serial_vars:
@@ -158,7 +158,7 @@ class Serializable(object):
 
     def from_dict(self, d):
         """set state/variables from dict
-        
+
         Note:
             can also support list, but that is not preferable since it relies on knowing
             the sequence of tracked variables in the class.
@@ -220,15 +220,22 @@ class Serializable(object):
     def init_from_dict(cls, d, *args, **kwargs):
         """
         Todo:
-            Not tested yet
+            Likely fails, because __init__ probably does a lot of important work.
+
+        Note:
+            requirement is that init_from_dict should be re-written to be able to decode properly from the encoded to_dict output.
+            In general, this should be over-ridden, i.e. with a default object creation/initialization.
+            I.e. should call with default inputs to the constructor.
         """
         try:
+            # obj = object.__new__(cls)
             obj = cls(*args, **kwargs)
         except:
             print("Could not initialize {}".format(cls))
 
         # final update
         obj.from_dict(d)
+        return obj
 
 
 def serialize(track_args):
@@ -244,7 +251,7 @@ def serialize(track_args):
         Can make the str() and repr() modifications by decorator as well!
 
     Todo:
-        metaclass conflicts with further mix-ins... temporarily ignore. 
+        metaclass conflicts with further mix-ins... temporarily ignore.
         revisit later to get better naming/reporting for the *class*
 
     Example:
@@ -260,12 +267,12 @@ def serialize(track_args):
         old_init = cls.__init__
 
         class tmpMeta(type):
-            """to change the __str__ and __repr__ a wrapped class uses to report itself.
-            """
+            """to change the __str__ and __repr__ a wrapped class uses to report itself."""
 
             def __str__(self):
                 return "<serialize-wrapped class '{}.{}'>".format(
-                    cls.__module__, cls.__name__,
+                    cls.__module__,
+                    cls.__name__,
                 )
 
             def __repr__(self):
@@ -316,9 +323,9 @@ def serialize(track_args):
 
 
 def serialize_list(cls):
-    """ Take a `Serializable` classdef and make a Serializable list/container class for it.
+    """Take a `Serializable` classdef and make a Serializable list/container class for it.
 
-    Primary job of this class is to provide standard to_dict, from_dict definitions 
+    Primary job of this class is to provide standard to_dict, from_dict definitions
     that know how to instantiate further Serializable objects
 
     Todo:
@@ -434,13 +441,13 @@ def serialize_list(cls):
 
 class SerializableTypedList(collections.MutableSequence, Serializable):
     """Create custom list that type-checks its contents.
-    
-    TypedList, with special handling for use with Serializable classes. 
+
+    TypedList, with special handling for use with Serializable classes.
     For creating a quick list containers when creating a new class is overkill.
-    
+
     Note:
         taken from https://stackoverflow.com/questions/3487434/overriding-append-method-after-inheriting-from-a-python-list
-        
+
         This is just a reference.
 
         deserialization behavior:
@@ -460,12 +467,15 @@ class SerializableTypedList(collections.MutableSequence, Serializable):
     def to_dict(self):
         return self.to_list()
 
-    def to_list(self):
+    def to_list(self, encoder=None):
         if issubclass(self.oktype, Serializable):
             return [el.to_dict() for el in self]
         else:
             # return list(self)
-            return [encode(el) for el in self]
+            if encoder is None:
+                return [encode(el) for el in self]
+            else:
+                return [encoder(el) for el in self]
 
     def from_dict(self, d):
         """default behavior is to override"""
@@ -477,14 +487,20 @@ class SerializableTypedList(collections.MutableSequence, Serializable):
             raise ValueError("Unsupported input data type {}".format(type(d)))
         self.from_list(d_iterator)
 
-    def from_list(self, l):
+    def from_list(self, l, decoder=None):
         del self[:]  # clear out the list for over-riding
         for v in l:
-            if isinstance(v, collectionsABC.Mapping):
-                self.append(self.oktype(**v))
+            if issubclass(self.oktype, Serializable):
+                if isinstance(v, collectionsABC.Mapping):
+                    self.append(self.oktype(**v))
+                else:
+                    # assume elements are ordered same as arguments of `cls`
+                    self.append(self.oktype(*v))
             else:
-                # assume elements are ordered same as arguments of `cls`
-                self.append(self.oktype(*v))
+                if decoder is None:
+                    self.append(decode(v, self.oktype))
+                else:
+                    self.append(decoder(v, type=self.oktype))
 
     def custom_get(self, k):
         raise NotImplementedError(
@@ -550,23 +566,23 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
     For creating a quick container when creating a new class is overkill.
 
     Can be used as a light-weight schema in the vein of Marshmallow.
-    If using as a schema, note that *nested* schemas can only be preserved 
-    if one defines new classes defining the schemas to be nested. 
-    (i.e. if a SerializableTypedDict itself contains a SerializableTypedDict 
+    If using as a schema, note that *nested* schemas can only be preserved
+    if one defines new classes defining the schemas to be nested.
+    (i.e. if a SerializableTypedDict itself contains a SerializableTypedDict
     constructed on the fly, the nested SerializableTypedDict's schema won't be preserved).
 
-    Currently, from_dict defaults to *strict mode* (`self._deserialization_strict=True`), 
+    Currently, from_dict defaults to *strict mode* (`self._deserialization_strict=True`),
     only updates entries if they already exist in the dictionary.
 
     The non-strict mode performs a standard dictionary update (i.e. add new keys).
 
-    Can consider completely over-writing the dictionary upon loading, 
+    Can consider completely over-writing the dictionary upon loading,
     akin to the implementation in SerializableTypedList.
 
     Todo:
-        Have the SerializableTypedDict preserve its own schema? 
+        Have the SerializableTypedDict preserve its own schema?
         Or some way to save and load the schema? (essentially, self.keys, self._types, self._has_many)
-    
+
     Note:
         used https://stackoverflow.com/questions/3387691/how-to-perfectly-override-a-dict/47361653#47361653 as reference
     """
@@ -625,7 +641,7 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         """check if `v` is of the right type for key `key`
         only works if key in this dictionary!
         I.e. behavior when key not in dictionary should be handled elsewhere, e.g. `__setitem__()`
-    
+
         Args:
             v (instance): should not be a class
         """
@@ -675,18 +691,18 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
 
         Notes:
             For use before setting any values, i.e. to define the schema for this dict.
-            
-            Note that `typ` should be a class, i.e. it can't be a SerializableTypedList instantiated with an oktype. 
-         
-            I.e. if one intuitively wants to do: 
-                add_entry_type(key,SerializableTypedList(typ))  
+
+            Note that `typ` should be a class, i.e. it can't be a SerializableTypedList instantiated with an oktype.
+
+            I.e. if one intuitively wants to do:
+                add_entry_type(key,SerializableTypedList(typ))
 
             one should actually do:
 
                 add_entry_type(key,typ,has_many=True)
-        
+
             because SerializableTypedList(typ) is an instance of SerializableTypedList, and is not a proper type.
-            
+
             The alternative is to use: `mydict['key'] = SerializableTypedList(typ)`
         """
         # For handling the "intuitive but wrong" behavior described in the Notes
@@ -728,7 +744,7 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
     # === SERIALIZABLE INTERFACE ===
     def to_dict(self):
         """always send out a dict
-        
+
         Essentially, this dict is the *state* of the system!"""
         od = OrderedDict()
         for k in self._store:
@@ -737,7 +753,7 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
 
     def from_dict(self, d):
         """set state/variables from dict
-        
+
         Note:
             deserialization defaults to strict mode. "lax" mode behaves like a normal dictionary update.
 
@@ -768,13 +784,16 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
                 "Unsupported input data type {}, can't serialize".format(type(d))
             )
 
-    def custom_get(self, k):
+    def custom_get(self, k, encoder=None):
         if isinstance(self._store[k], Serializable):
             return self._store[k].to_dict()
         else:
-            return encode(self._store[k])  # retrieve the getter/variable of choice
+            if encoder is None:
+                return encode(self._store[k])  # retrieve the getter/variable of choice
+            else:
+                return encoder(self._store[k])
 
-    def custom_set(self, k, v):
+    def custom_set(self, k, v, decoder=None):
         # if serial_vars[k] points to a Serializable object,
         # then need to recursively update that object's values by calling from_dict!!
         # note that custom_set here does not type check, because we're deserializing/decoding and the input
@@ -782,7 +801,10 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         if isinstance(self._store[k], Serializable):
             self._store[k].from_dict(v)
         else:
-            self._store[k] = self._types[k](v)
+            if decoder is None:
+                self._store[k] = decode(v, self._types[k])
+            else:
+                self._store[k] = decoder(v, type=self._types[k])
 
 
 # ===== Unused ======
@@ -810,7 +832,7 @@ class serial_tracking(type):
 
 class TypedList(collections.MutableSequence):
     """Create custom list that type-checks its contents.
-    
+
     Note:
         taken from https://stackoverflow.com/questions/3487434/overriding-append-method-after-inheriting-from-a-python-list
         This is just a reference; we don't actually use this.
@@ -857,4 +879,3 @@ class TypedList(collections.MutableSequence):
 
     def __repr__(self):
         return super(TypedList).__repr__() + " " + self.list.__repr__()
-
