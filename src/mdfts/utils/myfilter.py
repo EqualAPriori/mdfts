@@ -94,6 +94,9 @@ f1 == f2                            #returns True
 """
 from __future__ import absolute_import, division, print_function
 import collections
+from multiprocessing.sharedctypes import Value
+
+from pytest import Item
 
 # from multiprocessing.sharedctypes import Value
 
@@ -113,7 +116,9 @@ sys.path.insert(1, "/Users/kshen/code/mdfts/src")
 from mdfts.utils import serial
 
 
-class A:
+class A(serial.Serializable):
+    _serial_vars = ["x"]
+
     def __init__(self, x):
         self.x = x
 
@@ -123,7 +128,20 @@ class A:
         else:
             return self.x == other
 
+    @classmethod
+    def init_from_dict(cls, d, *args, **kwargs):
+        print(cls)
+        try:
+            obj = cls(0, *args, **kwargs)
+        except:
+            print("Could not initialize {}".format(cls))
 
+        # final update
+        obj.from_dict(d)
+        return obj
+
+
+@serial.serialize("x")
 class A_hashable:
     def __init__(self, x):
         self.x = x
@@ -210,7 +228,7 @@ class Filter(collectionsABC.Sequence):
         An alternative syntax is to take a *single* iterable containing the patterns.
 
         Returns:
-            [type]: [description]
+            bool: whether or not match was found
         """
         if len(args) != len(self):
             return False
@@ -316,7 +334,7 @@ class TypedFilter(collectionsABC.Sequence, serial.Serializable):
     """
 
     def __init__(self, *args, oktype=None, ordered=False):
-        self.oktype = oktype
+        self._oktype = oktype
         self._ordered = ordered
         self._pattern = tuple(
             [self.unique_values(pattern) for pattern in args]
@@ -328,7 +346,7 @@ class TypedFilter(collectionsABC.Sequence, serial.Serializable):
     def __getitem__(self, ii):
         # leads to infinite recursion because __eq__ tries to cast contents into Filter,
         # which triggers another equality check and can never unpack contents
-        # return TypedFilter(*self._pattern[ii], oktype=self.oktype)
+        # return TypedFilter(*self._pattern[ii], oktype=self._oktype)
         return self._pattern[ii]
 
     def __len__(self):
@@ -340,11 +358,11 @@ class TypedFilter(collectionsABC.Sequence, serial.Serializable):
         if not isinstance(other, (TypedFilter, Filter)):
             # Then turn into a filter, which pre-processes uniqueness
             if isinstance(other, collectionsABC.Iterable):
-                other = TypedFilter(*other, oktype=self.oktype)
+                other = TypedFilter(*other, oktype=self._oktype)
             else:  # i.e. a "1-body" filter --> provides equality checking against tuples
-                other = TypedFilter(other, oktype=self.oktype)
+                other = TypedFilter(other, oktype=self._oktype)
         else:
-            if self.oktype != other.oktype:
+            if self._oktype != other._oktype:
                 return False
 
         if len(self) != len(other):
@@ -372,15 +390,15 @@ class TypedFilter(collectionsABC.Sequence, serial.Serializable):
     def __add__(self, other):
         if type(self) != type(other):
             raise ValueError("Can only add common Typed Filters together")
-        elif self.oktype != other.oktype:
+        elif self._oktype != other._oktype:
             warnings.warn("Dissimilar Filter Types, using untyped Filter instead")
             return Filter(*(self._pattern + other._pattern))
         else:
-            return TypedFilter(*(self._pattern + other._pattern), oktype=self.oktype)
+            return TypedFilter(*(self._pattern + other._pattern), oktype=self._oktype)
 
     def __repr__(self):
         # return "{}{}".format(self.__class__, self._pattern)
-        return "Filter{}{}".format(self.oktype, self._pattern)
+        return "Filter{}{}".format(self._oktype, self._pattern)
 
     # === SERIALIZABLE INTERFACE ===
 
@@ -476,17 +494,17 @@ class TypedFilter(collectionsABC.Sequence, serial.Serializable):
                 if isinstance(el, collectionsABC.Iterable) and not isinstance(
                     el, (TypedFilter, str)
                 ):
-                    el1 = TypedFilter(self.oktype, el)
+                    el1 = TypedFilter(self._oktype, el)
                 elif isinstance(el, Filter):
-                    el1 = TypedFilter(self.oktype, *el._pattern)
+                    el1 = TypedFilter(self._oktype, *el._pattern)
                 else:
                     el1 = el
-                if not isinstance(el1, self.oktype) or (
-                    isinstance(el1, TypedFilter) and el1.oktype != self.oktype
+                if not isinstance(el1, self._oktype) or (
+                    isinstance(el1, TypedFilter) and el1._oktype != self._oktype
                 ):
                     raise TypeError(
                         "This typed filter requires type {}, received {}".format(
-                            self.oktype, el1
+                            self._oktype, el1
                         )
                     )
                 if el1 not in unique:
@@ -497,7 +515,7 @@ class TypedFilter(collectionsABC.Sequence, serial.Serializable):
             return (x,)  # `x` prints nicer, but (x,) is iter-ready for itertools
 
 
-class FilterSet(collectionsABC.Sequence):
+class FilterSet0(collectionsABC.Sequence):
     """A FilterSet that only works with hashable (and ideally immutable) types.
 
     Essentially, processes arguments into a tuple of (frozen) sets.
@@ -540,7 +558,7 @@ class FilterSet(collectionsABC.Sequence):
         if type(self) != type(other):
             raise ValueError("Can only add FilterSets together")
         else:
-            return FilterSet(*(self._pattern + other._pattern), oktype=self.oktype)
+            return FilterSet(*(self._pattern + other._pattern), oktype=self._oktype)
 
     def __contains__(self, pattern):
         return self.match(*pattern)
@@ -604,7 +622,7 @@ class FilterSet(collectionsABC.Sequence):
             return tuple(pattern)
 
 
-class TypedFilterSet(collectionsABC.Sequence, serial.Serializable):
+class FilterSet(collectionsABC.Sequence):
     """A TypedFilterSet that only preferably with hashable (and ideally immutable) types.
 
     Essentially, processes arguments into a tuple of (frozen) sets.
@@ -626,7 +644,13 @@ class TypedFilterSet(collectionsABC.Sequence, serial.Serializable):
 
     # === SEQUENCE INTERFACE AND DUNDER METHODS ===
     def __eq__(self, other):
-        if len(self) != len(other):
+        if not isinstance(other, FilterSet):
+            if not isinstance(other, collectionsABC.Iterable):
+                other = (other,)
+            else:
+                other = FilterSet(*other, ordered=self._ordered)
+        if len(self) != len(other) or self._ordered != other._ordered:
+            print("fail1")
             return False
 
         if self._hashable:  # use set equality for order-insensitive subpattern matching
@@ -636,11 +660,13 @@ class TypedFilterSet(collectionsABC.Sequence, serial.Serializable):
                 for p in itertools.permutations(other._pattern):
                     if p == self._pattern:
                         return True
+                print("fail2")
                 return False
         else:  # need custom function for order-insensitive matching of subpatterns
             if self._ordered:
                 for item1, item2 in zip(self, other):
                     if not eq_order_insensitive(item1, item2):
+                        print("fail3")
                         return False
                 return True
             else:
@@ -663,26 +689,35 @@ class TypedFilterSet(collectionsABC.Sequence, serial.Serializable):
         if type(self) != type(other):
             raise ValueError("Can only add FilterSets together")
         else:
-            return FilterSet(*(self._pattern + other._pattern), oktype=self.oktype)
+            return FilterSet(*(self._pattern + other._pattern), oktype=self._oktype)
         """
-        elif self.oktype != other.oktype:
+        elif self._oktype != other._oktype:
             warnings.warn("Dissimilar Filter Types, using untyped Filter instead")
             return Filter(*(self._pattern + other._pattern))
         else:
-            return TypedSet(*(self._pattern + other._pattern), oktype=self.oktype)
+            return TypedSet(*(self._pattern + other._pattern), oktype=self._oktype)
         """
 
     def __contains__(self, pattern):
         return self.match(*pattern)
 
-    # === CUSTOM METHODS ===
+    # === CUSTOM Filter METHODS ===
+    def filter(self, iterator, pre_process=None, post_process=None):
+        for el in iterator:
+            if pre_process is not None:
+                target = pre_process(el)  # e.g. extract an attribute only
+            else:
+                target = el
+
+            if self.match(target):
+                if post_process(el):  # e.g. additional checks, like bonding
+                    yield el
+
     def match(self, *args, mode=0):
         """See if a set of values matches the filter's pattern
-        Current syntax expects # arguments = # elements in the filter's pattern.
-        This is to match the constructor syntax.
 
-        An alternative syntax is to take a *single* iterable containing the patterns,
-        kind of like numpy.random.random([2,2]) vs. numpy.random.rand(2,2)
+        Current syntax matches constructor syntax, e.g. like numpy.random.rand(2,2).
+        Alternative syntax is to take a *single* iterable, e.g. like numpy.random.random([2,2])
 
         Returns:
             bool: whether or not match is found
@@ -725,16 +760,110 @@ class TypedFilterSet(collectionsABC.Sequence, serial.Serializable):
 
     def infer_type(self):
         seen_types = []
-        for (
-            sub_pattern
-        ) in self._pattern:  # self._pattern should already be a tuple of tuples
+        if len(self._pattern) == 0:
+            return None
+        for sub_pattern in self._pattern:
+            # self._pattern should already be a tuple of tuples
             for el in sub_pattern:
                 if type(el) not in seen_types:
-                    seen_types.append(seen_types)
+                    seen_types.append(type(el))
         if all([t == seen_types[0] for t in seen_types]):
             return seen_types[0]
         else:
             return None
+
+
+class SerializableFilterSet(FilterSet, serial.Serializable):
+    def __init__(self, *args, ordered=False):
+        super(SerializableFilterSet, self).__init__(*args, ordered=ordered)
+        if self._oktype is None:
+            if len(self._pattern) > 0:
+                raise TypeError(
+                    "SerializableFilter must have everything be a single type!"
+                )
+            else:
+                warnings.warn("Empty filter, still need to specify a type")
+        _serial_vars = [
+            "_pattern",
+            "_ordered",
+            "_oktype",
+        ]
+
+    # === SERIALIZABLE INTERFACE ===
+    def custom_get(self, k):
+        """_summary_
+
+        Args:
+            k (str): dictionary key
+
+        Raises:
+            KeyError: if not a standard key of SerializableFilterSets
+
+        Returns:
+            depends: on the field requested
+
+        the _pattern part likely needs over-riding for more complex objects
+        """
+        if k in ["_ordered", "ordered"]:
+            return self._ordered
+        elif k in ["_oktype", "type", "oktype"]:
+            return self._oktype
+        elif k in ["_pattern", "pattern"]:
+            res = []
+            for sub_pattern in self._pattern:
+                subres = []
+                for sp in sub_pattern:
+                    if isinstance(sp, serial.Serializable):
+                        subres.append(sp.to_dict())
+                    else:
+                        subres.append(sp)
+                res.append(subres)
+            return res
+        else:
+            raise KeyError("Unknown key type for a SerializableFilterSet")
+
+    def custom_set(self, k, v, decoder=None):
+        """_summary_
+
+        Args:
+            k (str): key
+            v (depends): value to set. should be in *decoded* format.
+
+        Note:
+            do the type coercing here.
+            Maybe... need another code in the schema who knows the correct type to coerce things into!
+        """
+        if k in ["_ordered", "ordered"]:
+            if type(v) == bool:
+                self._ordered = v
+            else:
+                raise ValueError("value for key `ordered` must be `bool`")
+        elif k in ["_oktype", "type", "oktype"]:
+            self._oktype = oktype
+            # really should not allow setting of oktype this way, dangerous
+        elif k in ["_pattern", "pattern"]:
+            res = []
+            pattern, _ = process_pattern(v)
+            print(pattern)
+            for sub_pattern in pattern:
+                # pattern should be list of lists!
+                subres = []
+                for sp in sub_pattern:
+                    if issubclass(self._oktype, serial.Serializable):
+                        subres.append(self._oktype.init_from_dict(sp))
+                    else:
+                        subres.append(serial.decode(sp, self._oktype))
+                res.append(tuple(subres))
+            self._pattern, self._hashable = process_pattern(res)
+        else:
+            raise KeyError("Unknown key type for a SerializableFilterSet")
+
+        # self._pattern, self._hashable = process_pattern(args)
+        # self._oktype = self.infer_type()
+
+    # @classmethod
+    # def init_from_dict(cls, d, *args, **kwargs):
+    #    pass
 
 
 # === Utility Functions Performing Some Set-like Operations and Pattern Expansion, for Un-hashable objects
@@ -767,15 +896,26 @@ def match(master_pattern, target_pattern, ordered=False, mode=0):
             permutations = itertools.permutations(master_pattern)
 
         for pattern in permutations:
+            matched = []
             for ix, x in enumerate(target_pattern):
                 if isinstance(pattern[ix], collectionsABC.Iterable):
-                    if x not in pattern[ix]:
+                    if isinstance(x, collectionsABC.Iterable) and len(list(x)) == 1:
+                        if x[0] not in pattern[ix]:
+                            matched.append(False)
+                            break
+                    elif x not in pattern[ix]:
+                        matched.append(False)
                         break  # try next pattern
                 else:  # in case the pattern is given as a single element instead of the less ambiguous (x,) format
                     if x != pattern[ix]:
+                        matched.append(False)
                         break  # try next pattern
+
+                matched.append(True)
+
+            if all(matched):
                 return True  # only if all x match to their corresponding patterns
-    elif mode == 1:  # itertools way
+    elif mode == 1:  # itertools way, only works if everything is given in (1,) format
         # costly, preferably patterns are pre-computed
         patterns = list(itertools.product(master_pattern))
         if ordered:
@@ -833,24 +973,31 @@ def process_pattern(args):
             hashable = False
             pattern = ((args,),)
     else:  # This is the typical case, as *args gets processed into at least (arg1,)
-        hashable = all([isinstance(x, collectionsABC.Hashable) for x in args])
+        preprocessed = [
+            tuple(x) if isinstance(x, collectionsABC.Iterable) else x for x in args
+        ]
+        print(preprocessed)
+
+        hashable = all([isinstance(x, collectionsABC.Hashable) for x in preprocessed])
 
         pattern = []
         if hashable:
-            for arg in args:
-                if isinstance(arg, collectionsABC.Iterable):
-                    pattern.append(frozenset(arg))
-                else:
-                    pattern.append(frozenset([arg]))
-            return tuple(pattern)
-        else:
-            for arg in args:
+            try:
+                for arg in preprocessed:
+                    if isinstance(arg, collectionsABC.Iterable):
+                        pattern.append(frozenset(arg))
+                    else:
+                        pattern.append(frozenset([arg]))
+            except:
+                hashable = False
+        if not hashable:
+            for arg in preprocessed:
                 if isinstance(arg, collectionsABC.Iterable):
                     pattern.append(uniqify(arg))
                 else:
                     pattern.append(uniqify(arg))
 
-    return pattern, hashable
+    return tuple(pattern), hashable
 
 
 def eq_order_insensitive(x, y):
@@ -910,15 +1057,37 @@ if __name__ == "__main__":
     f3 = TypedFilter(A(1), A(2), oktype=A)
     f4 = TypedFilter(1, 2, oktype=int)
     f5 = TypedFilter(A(2), A(1), oktype=A)
-    f3 == f5  # True
+    print(f3 == f5)  # True
 
     fs1 = FilterSet(1, 2, 3, 4, (4, 4, 5))
     fs2 = FilterSet(A_hashable(1), 2, 3, 4, (4, 4, 5))
-    fs1 == fs2  # True
+    print(fs1 == fs2)  # True
 
     import time
 
     start = time.time()
     for ii in range(1000):
         fs1.match(1, 5, 3, 4, 2)
-    print("took {}s".format(time.time() - start))
+    print("took {}s to do 1000x matches".format(time.time() - start))
+
+    sfs = SerializableFilterSet(A(1), A(2))
+    d = sfs.to_dict()
+    print(d)
+    sfs.from_dict(d)
+    sfs.match(1, 2)  # True
+    sfs.match((1,), (2,))  # True
+    sfs.match(1, 3)  # False
+
+    # to make a new SerializableFilterSet:
+    sfs1 = SerializableFilterSet()
+    sfs1._oktype = int
+    sfs1.custom_set("pattern", [1])
+    sfs1.custom_set("_pattern", [[1]])  # equivalent
+    sfs1.custom_set("_pattern", [(1,)])  # equivalent
+
+    sfs2 = SerializableFilterSet()
+    sfs2._oktype = A
+    sfs2.from_dict(d)
+
+    sfs == sfs2  # True
+    sfs2 == sfs  # True
