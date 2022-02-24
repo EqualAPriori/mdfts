@@ -1226,6 +1226,7 @@ def eq_order_insensitive(x, y):
         for item1 in x:
             pattern_found = False
             for ind, item2 in enumerate(y):
+                # print(item1, item2)
                 if eq_order_insensitive(item1, item2):
                     y = y[:ind] + y[ind + 1 :]
                     pattern_found = True
