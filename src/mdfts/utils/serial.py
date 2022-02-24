@@ -28,13 +28,13 @@ from __future__ import absolute_import, division, print_function
 from collections import OrderedDict
 import collections
 import inspect
+import itertools
+import warnings
 
 try:
     collectionsABC = collections.abc
 except:
     collectionsABC = collections
-
-import inspect
 
 
 # ===== Helpers =====
@@ -805,6 +805,436 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
                 self._store[k] = decode(v, self._types[k])
             else:
                 self._store[k] = decoder(v, type=self._types[k])
+
+
+# ===== SerialFilter =====
+class FilterSet(collectionsABC.Sequence):
+    """A TypedFilterSet that only preferably with hashable (and ideally immutable) types.
+
+    Essentially, processes arguments into a tuple of (frozen) sets.
+
+    Only nests 1 deep.
+    """
+
+    def __init__(self, *args, ordered=False):
+        self._pattern, self._hashable = process_pattern(args)
+        self._ordered = ordered
+        self._oktype = self.infer_type()
+
+        self._patterns = list(itertools.product(*self._pattern))
+        self._serial_vars = [
+            "_pattern",
+            "_ordered",
+        ]
+        self._extra_vars = None
+
+    # === SEQUENCE INTERFACE AND DUNDER METHODS ===
+    def __eq__(self, other):
+        if not isinstance(other, FilterSet):
+            if not isinstance(other, collectionsABC.Iterable):
+                other = (other,)
+            else:
+                other = FilterSet(*other, ordered=self._ordered)
+        if len(self) != len(other) or self._ordered != other._ordered:
+            return False
+
+        if self._hashable:  # use set equality for order-insensitive subpattern matching
+            if self._ordered:
+                return self._pattern == other._pattern
+            else:
+                for p in itertools.permutations(other._pattern):
+                    if tuple(p) == tuple(self._pattern):  # patterns should be iterable
+                        # cast to tuple to prevent spurious false from tuple != list (but contents equal)
+                        return True
+                return False
+        else:  # need custom function for order-insensitive matching of subpatterns
+            if self._ordered:
+                for item1, item2 in zip(self, other):
+                    if not eq_order_insensitive(item1, item2):
+                        return False
+                return True
+            else:
+                # custom handling of order-insensitive tuple of order-insensitive tuples
+                return eq_order_insensitive(self, other)
+
+    def __hash__(self):
+        return hash((self._pattern, self.ordered))
+
+    def __repr__(self):
+        return "FilterSet {}".format(self._pattern)
+
+    def __getitem__(self, ii):
+        return self._pattern[ii]
+
+    def __len__(self):
+        return len(self._pattern)
+
+    def __add__(self, other):
+        if type(self) != type(other):
+            raise ValueError("Can only add FilterSets together")
+        else:
+            return FilterSet(*(self._pattern + other._pattern), oktype=self._oktype)
+        """
+        elif self._oktype != other._oktype:
+            warnings.warn("Dissimilar Filter Types, using untyped Filter instead")
+            return Filter(*(self._pattern + other._pattern))
+        else:
+            return TypedSet(*(self._pattern + other._pattern), oktype=self._oktype)
+        """
+
+    def __contains__(self, pattern):
+        return self.match(*pattern)
+
+    # === CUSTOM Filter METHODS ===
+    def filter(self, iterator, pre_process=None, post_process=None):
+        for el in iterator:
+            if pre_process is not None:
+                target = pre_process(el)  # e.g. extract an attribute only
+            else:
+                target = el
+
+            if self.match(target):
+                if post_process(el):  # e.g. additional checks, like bonding
+                    yield el
+
+    def match(self, *args, mode=0):
+        """See if a set of values matches the filter's pattern
+
+        Current syntax matches constructor syntax, e.g. like numpy.random.rand(2,2).
+        Alternative syntax is to take a *single* iterable, e.g. like numpy.random.random([2,2])
+
+        Returns:
+            bool: whether or not match is found
+        """
+        return match(self._pattern, args, self._ordered, mode=0)
+
+    def check_overlap(self, other):
+        """Returns common matching subpatterns.
+        The trick is to check all permutations of the patterns for completeness,
+        but when outputting to not put repeat patterns.
+
+        Args:
+            other (Filter-like): e.g. filter._pattern also works
+
+        Returns:
+            list: common matching subpatterns
+        """
+        if len(other) != len(self):
+            return False
+        matches = []
+
+        for subpattern in itertools.product(*self._pattern):
+            # print("SUBPATTERN {}".format(subpattern))
+            if self._ordered == True:
+                if isinstance(other, Filter):
+                    permutation_iterator = [other._pattern]
+                else:
+                    permutation_iterator = [other]
+            elif isinstance(other, Filter):
+                permutation_iterator = itertools.permutations(other._pattern)
+            else:
+                permutation_iterator = itertools.permutations(other)
+            for permutation in permutation_iterator:
+                for other_subpattern in itertools.product(*permutation):
+                    # print("other {}".format(other_subpattern))
+                    if subpattern == other_subpattern:
+                        if subpattern not in matches:
+                            matches.append(subpattern)
+        return matches
+
+    def infer_type(self):
+        seen_types = []
+        if len(self._pattern) == 0:
+            return None
+        for sub_pattern in self._pattern:
+            # self._pattern should already be a tuple of tuples
+            for el in sub_pattern:
+                if type(el) not in seen_types:
+                    seen_types.append(type(el))
+        if all([t == seen_types[0] for t in seen_types]):
+            return seen_types[0]
+        else:
+            return None
+
+
+class SerializableFilterSet(FilterSet, Serializable):
+    def __init__(self, *args, ordered=False):
+        super(SerializableFilterSet, self).__init__(*args, ordered=ordered)
+        if self._oktype is None:
+            if len(self._pattern) > 0:
+                raise TypeError(
+                    "SerializableFilter must have everything be a single type!"
+                )
+            else:
+                warnings.warn("Empty filter, still need to specify a type")
+        _serial_vars = [
+            "_pattern",
+            "_ordered",
+            "_oktype",
+        ]
+
+    # === SERIALIZABLE INTERFACE ===
+    def custom_get(self, k):
+        """_summary_
+
+        Args:
+            k (str): dictionary key
+
+        Raises:
+            KeyError: if not a standard key of SerializableFilterSets
+
+        Returns:
+            depends: on the field requested
+
+        the _pattern part likely needs over-riding for more complex objects
+        """
+        if k in ["_ordered", "ordered"]:
+            return self._ordered
+        elif k in ["_oktype", "type", "oktype"]:
+            return self._oktype
+        elif k in ["_pattern", "pattern"]:
+            res = []
+            for sub_pattern in self._pattern:
+                subres = []
+                for sp in sub_pattern:
+                    if isinstance(sp, Serializable):
+                        subres.append(sp.to_dict())
+                    else:
+                        subres.append(sp)
+                res.append(subres)
+            return res
+        else:
+            raise KeyError("Unknown key type for a SerializableFilterSet")
+
+    def custom_set(self, k, v, decoder=None):
+        """_summary_
+
+        Args:
+            k (str): key
+            v (depends): value to set. should be in *decoded* format.
+
+        Note:
+            do the type coercing here.
+            Maybe... need another code in the schema who knows the correct type to coerce things into!
+        """
+        if k in ["_ordered", "ordered"]:
+            if type(v) == bool:
+                self._ordered = v
+            else:
+                raise ValueError("value for key `ordered` must be `bool`")
+        elif k in ["_oktype", "type", "oktype"]:
+            self._oktype = oktype
+            # really should not allow setting of oktype this way, dangerous
+        elif k in ["_pattern", "pattern"]:
+            res = []
+            pattern, _ = process_pattern(v)
+            for sub_pattern in pattern:
+                # pattern should be list of lists!
+                subres = []
+                for sp in sub_pattern:
+                    if issubclass(self._oktype, Serializable):
+                        subres.append(self._oktype.init_from_dict(sp))
+                    else:
+                        subres.append(decode(sp, self._oktype))
+                res.append(tuple(subres))
+            self._pattern, self._hashable = process_pattern(res)
+        else:
+            raise KeyError("Unknown key type for a SerializableFilterSet")
+
+        # self._pattern, self._hashable = process_pattern(args)
+        # self._oktype = self.infer_type()
+
+    # @classmethod
+    # def init_from_dict(cls, d, *args, **kwargs):
+    #    pass
+
+
+# === Utility Functions Performing Some Set-like Operations and Pattern Expansion, for Un-hashable objects
+def match(master_pattern, target_pattern, ordered=False, mode=0):
+    """Matching patterns represented by tuples
+
+    Args:
+        master_pattern (tuple): each element can itself be an iterable with several options that need to be searched over
+        target_pattern (tuple): should be non-iterable in each element
+        ordered (bool, optional): whether or not the match should be ordered. Defaults to False.
+        mode (int, optional): which algorithm for doing matching. Defaults to 0.
+
+    Returns:
+        bool: whether target_pattern was found in master_pattern
+
+    Note:
+        patterns should be n-tuples where each element is itself an iterable, even for 1-element,
+        e.g. ((x,),(1,2)) is a 2-body filter with 'x' in the first slot and 1 or 2 in the second slot.
+        The code will also handle (x,(1,2)) for convenience, but the above should be preferred for clarity.
+    """
+    if len(target_pattern) != len(master_pattern):
+        return False
+    # iterate over permutations of the filter's pattern until we get one
+    # that matches the order the arguments are input in
+
+    if mode == 0:  # naive way
+        if ordered:
+            permutations = [master_pattern]
+        else:
+            permutations = itertools.permutations(master_pattern)
+
+        for pattern in permutations:
+            matched = []
+            for ix, x in enumerate(target_pattern):
+                found_mismatch = False
+                if isinstance(x, collectionsABC.Iterable) and len(list(x)) == 1:
+                    target = x[0]
+                else:
+                    target = x
+                if isinstance(pattern[ix], collectionsABC.Iterable):
+                    if target not in pattern[ix]:
+                        found_mismatch = True
+                else:  # in case the pattern is given as a single element instead of the less ambiguous (x,) format
+                    if target != pattern[ix]:
+                        found_mismatch = True
+
+                if found_mismatch:
+                    matched.append(False)
+                    break  # try next pattern
+                else:
+                    matched.append(True)
+
+            if all(matched):
+                return True  # only if all x match to their corresponding patterns
+            # if not found_mismatch: #alternative, don't even need to check all(matched)!
+            #    return True
+
+    elif mode == 1:  # itertools way, only works if everything is given in (1,) format
+        # costly, preferably patterns are pre-computed
+        patterns = list(itertools.product(master_pattern))
+        if ordered:
+            return target_pattern in patterns
+        else:
+            for p in itertools.permutations(target_pattern):
+                if p in patterns:  # try next pattern
+                    return True
+
+    return False
+
+
+def uniqify(x):
+    """Takes an iterable or an instance and returns unique *values*, as determined by __eq__
+    this implementation does *not* nest and recurse through.
+
+    This is for un-hashables that don't use set.
+
+    Args:
+        x (iterable): thing to extract unique values from
+
+    Returns:
+        tuple: returns tuple of processed values
+    """
+    if isinstance(x, collectionsABC.Iterable) and not isinstance(x, str):
+        unique = []
+        for el in x:
+            if el not in unique:
+                unique.append(el)
+        return tuple(unique)
+        # or, for fun, a 2-liner with list comprehension:
+        # unique = []
+        # [x for x in l if x not in used and (unique.append(x) or True)]
+    else:
+        return (x,)  # `x` prints nicer, but (x,) is iter-ready for itertools
+
+
+def process_pattern(args):
+    """Takes a list of arguments and turns it into a pattern that is a tuple of tuples (or frozen sets)
+
+    Consider alternative syntax: take in unpacked sequence of arguments (i.e. `def process_pattern(*args)`)
+
+    Returns:
+        tuple: of tuples/frozen sets
+        bool: whether everything was hashable
+    """
+    # Only nest 1-deep!
+    if isinstance(args, str) or not isinstance(
+        args, collectionsABC.Iterable
+    ):  # single element
+        if isinstance(args, collectionsABC.Hashable):
+            hashable = True
+            pattern = (frozenset((args,)),)
+        else:
+            hashable = False
+            pattern = ((args,),)
+    else:  # This is the typical case, as *args gets processed into at least (arg1,)
+        preprocessed = [
+            tuple(x) if isinstance(x, collectionsABC.Iterable) else x for x in args
+        ]
+
+        hashable = all([isinstance(x, collectionsABC.Hashable) for x in preprocessed])
+
+        pattern = []
+        if hashable:
+            try:
+                for arg in preprocessed:
+                    if isinstance(arg, collectionsABC.Iterable):
+                        pattern.append(frozenset(arg))
+                    else:
+                        pattern.append(frozenset([arg]))
+            except:
+                hashable = False
+        if not hashable:
+            for arg in preprocessed:
+                if isinstance(arg, collectionsABC.Iterable):
+                    pattern.append(uniqify(arg))
+                else:
+                    pattern.append(uniqify(arg))
+
+    return tuple(pattern), hashable
+
+
+def eq_order_insensitive(x, y):
+    """Checks two iterables to see if they have the same contents
+
+    In recursively order-insensitive form.
+
+    If all elements are unique (i.e. no repeats), this is like testing set equality by value
+    that works for unhasable objects that have cutom __eq__().
+
+    The main difference is that 1-element iterables are treated as if they were just their content,
+    i.e. 1 == (1,) by this function.
+
+    Args:
+        x (tuple, non-iterable):
+        y (tuple, non-iterable):
+    """
+    if isinstance(x, collectionsABC.Iterable) and isinstance(
+        y, collectionsABC.Iterable
+    ):
+        if (
+            isinstance(x, collectionsABC.Collection)
+            and isinstance(y, collectionsABC.Collection)
+            and len(x) != len(y)
+        ):
+            return False
+        for item1 in x:
+            pattern_found = False
+            for ind, item2 in enumerate(y):
+                if eq_order_insensitive(item1, item2):
+                    y = y[:ind] + y[ind + 1 :]
+                    pattern_found = True
+                    break  # found match, popped it, search for next item1
+            if not pattern_found:  # short circuit optimization; not necessary
+                break  # this is only hit if no matches are found and the loop didn't break earlier
+            """ old implementation that didn't do recursion:
+            try:
+                i = y.index(item1)
+            except ValueError:
+                return False
+            y = y[:i] + y[i + 1 :]
+            """
+        return not y
+    else:
+        if isinstance(x, collections.Iterable) and len(list(x)) == 1:
+            x = x[0]
+        if isinstance(y, collections.Iterable) and len(list(y)) == 1:
+            y = y[0]
+        return x == y
 
 
 # ===== Unused ======
