@@ -28,7 +28,8 @@ for _key, _val in locals().items():
 
 class _SimPotentialSpecification(object):
     """Container that parses and stores information for a potential from a sim
-    forcefield file"""
+    forcefield file
+    """
 
     def __init__(self):
         self.type = None
@@ -53,7 +54,8 @@ class _SimPotentialSpecification(object):
             self.type = _POTENTIAL_TYPES[_potential_type]
         except KeyError:
             raise ValueError("{} is not a valid potential type".format(_potential_type))
-        self.bead_names = _potential_name_split[1:]
+        # self.bead_names = _potential_name_split[1:]
+        self.bead_names = [name.split(";") for name in _potential_name_split[1:]]
 
         # set values of parameters
         self.parameters = literal_eval(_potential_data)
@@ -93,8 +95,9 @@ def load_from_sim_ff(filepath, kT=1.0):
                 other_gaussians.append(g)
 
         # use like Gaussian interactions to compute smearing lengths
+        # Todo: FIX to allow for mixed bead types
         for g in like_gaussians:
-            bead_name = g.bead_names[0]
+            bead_name = g.bead_names[0][0]
             if not ff.has_bead_type(bead_name):
                 ff.add_bead_type(BeadType(bead_name))
             bead_type = ff.get_bead_type(bead_name)
@@ -104,8 +107,9 @@ def load_from_sim_ff(filepath, kT=1.0):
 
         # add other Gaussian interactions
         for g in other_gaussians:
-            bead_type_1 = ff.get_bead_type(g.bead_names[0])
-            bead_type_2 = ff.get_bead_type(g.bead_names[1])
+            # Todo: HARD-CODED ASSUMPTION of bead type structure, update
+            bead_type_1 = ff.get_bead_type(g.bead_names[0][0])
+            bead_type_2 = ff.get_bead_type(g.bead_names[1][0])
             gaussian = Gaussian(bead_type_1, bead_type_2)
             gaussian.from_sim_specification(g, kT=kT)
             ff.add_potential(gaussian)
@@ -114,7 +118,14 @@ def load_from_sim_ff(filepath, kT=1.0):
     for p_type, p_spec_list in potential_specification_dict.items():
         if p_type is not Gaussian:
             for p_spec in p_spec_list:
-                potential = p_type(*[ff.get_bead_type(bn) for bn in p_spec.bead_names])
+                bead_filter = []
+                for subpattern in p_spec.bead_names:
+                    bead_filter.append([])
+                    for bn in subpattern:
+                        bead_filter[-1].append(ff.get_bead_type(bn))
+                # bead_filter = [ [ff.get_bead_type(bn) for bn in subpattern] for subpattern in p_spec.bead_names]
+                # potential = p_type(*[ff.get_bead_type(bn) for bn in p_spec.bead_names])
+                potential = p_type(*bead_filter)
                 potential.from_sim_specification(p_spec, kT=kT)
                 ff.add_potential(potential)
 
@@ -240,7 +251,8 @@ class ForceField(object):
         if inspect.isclass(potential_type) and issubclass(potential_type, _Potential):
             potential_type = potential_type.__name__
         for p in self._potentials[potential_type]:
-            if set(args) == set(p.bead_names):
+            # if set(args) == set(p.bead_names):
+            if serial.FilterSet(*p.bead_types.bead_names).match(*args):
                 return p
         raise ValueError(
             ("no potential of type '{}' with following bead types:" + " {},").format(
