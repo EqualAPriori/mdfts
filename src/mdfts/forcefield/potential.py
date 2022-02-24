@@ -100,6 +100,8 @@ class _Potential(object):
 
     def __init__(self, *args, **kwargs):
         """Constructor for the _Potential base class"""
+        # set bead types of the potential
+        # TODO: have ability to have multiple bead types
         self.bead_types = args
         self._parameters = serial.SerializableTypedDict()
         for p in self._SERIALIZED_PARAMETERS:
@@ -123,10 +125,14 @@ class _Potential(object):
             raise ValueError("attempted to set incorrect number of BeadTypes")
         self._bead_types = serial.SerializableTypedList(BeadType, *list(value))
 
+    @property
+    def bead_names(self):
+        """List of names of BeadTypes in the Potential"""
+        return [bt.name for bt in self.bead_types]
+
     def compare_bead_types(self, other_potential):
         """Checks if another Potential shares the same BeadTypes as this
         Potential"""
-
         # check that other potential is of type _Potential
         if not isinstance(other_potential, _Potential):
             raise TypeError("other potential must be type _Potential or inherit from it")
@@ -138,6 +144,14 @@ class _Potential(object):
         # return True if bead types of other potential match, False if else
         # TODO: condition only works for _NUM_BEAD_TYPES<=2. Need to generalize
         return set(self.bead_types) == set(other_potential.bead_types)
+
+    def from_sim_specification(self, sim_spec, kT=1.0):
+        """Reads in a _SimPotentialSpecification instance and sets values for
+        and sets values for the parameters"""
+        if sim_spec.bead_names == self.bead_names or sim_spec.bead_names == list(reversed(self.bead_names)):
+            pass
+        else:
+            raise ValueError("bead names in sim specification don't match bead names of the Potential")
 
 
 class _PairPotential(_Potential):

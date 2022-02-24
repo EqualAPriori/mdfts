@@ -5,10 +5,15 @@ interaction between two specified BeadTypes.
 from __future__ import absolute_import, division, print_function
 
 import math
+import warnings
 
 from mdfts.forcefield.potential import _Parameter, _PairPotential
 
 __all__ = ['Gaussian']
+
+
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
 ###############################################################################
@@ -40,14 +45,14 @@ class B(_Parameter):
         values of the excluded volume and Kappa parameters"""
         excl_vol = self.potential.excl_vol.value
         Kappa = self.potential.Kappa.value
-        return excl_vol * (Kappa / math.pi)**1.5
+        return excl_vol / (math.pi / Kappa)**1.5
 
     @value.setter
     def value(self, val):
         """Set the value of the B parameter. The value of the excluded volume
         parameter is adjusted proportionally"""
         Kappa = self.potential.Kappa.value
-        excl_vol = val / (Kappa / math.pi)**1.5
+        excl_vol = val * (math.pi / Kappa)**1.5
         self.potential.excl_vol.value = excl_vol
 
 
@@ -84,3 +89,12 @@ class Gaussian(_PairPotential):
 
     _SERIALIZED_PARAMETERS = [excl_vol]
     _NON_SERIALIZED_PARAMETERS = [B, Kappa]
+
+    def from_sim_specification(self, sim_spec, kT=1.0):
+        super(Gaussian, self).from_sim_specification(sim_spec, kT=kT)
+        if sim_spec.bead_names[0] == sim_spec.bead_names[1]:
+            self.bead_types[0].smear_length = 1. / (2 * math.sqrt(sim_spec.parameters["Kappa"]))
+        else:
+            if not isclose(self.Kappa.value, sim_spec.parameters["Kappa"]):
+                warnings.warn("Kappas don't match ({} vs {})".format(self.Kappa.value, sim_spec.parameters["Kappa"]))
+        self.B.value = sim_spec.parameters["B"] / kT

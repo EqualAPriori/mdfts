@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 
 import unittest
 
+import os
+
 import mdfts.forcefield as ff
 
 
@@ -82,6 +84,26 @@ class TestForceField(unittest.TestCase):
         self.assertEqual(bead_type_B['smear_length'], 5.0)
         self.assertEqual(bead_type_B['charge'], 1.0)
         self.assertEqual([], list(g_dict['_potentials']))
+
+    def test_import_from_sim(self):
+        kT = 313.15 * 8.314462618 / 1000
+        ff_path = os.path.join("sim_forcefields/pba_313.15K_ff.dat")
+        f = ff.load_from_sim_ff(ff_path, kT=kT)
+        gaussian_D4_D4 = f.get_potential(ff.Gaussian, 'D4', 'D4')
+        self.assertAlmostEqual(2.84325299791, gaussian_D4_D4.excl_vol.value)
+        self.assertAlmostEqual(4.4444e-01, gaussian_D4_D4.Kappa.value)
+        self.assertAlmostEqual(3.9391e-01 / kT, gaussian_D4_D4.B.value)
+        gaussian_Bpba_D4 = f.get_potential("Gaussian", "D4", "Bpba")
+        self.assertAlmostEqual(2.1099736395319293, gaussian_Bpba_D4.excl_vol.value)
+        self.assertAlmostEqual(4.4444e-01, gaussian_Bpba_D4.Kappa.value)
+        self.assertAlmostEqual(2.9232e-01 / kT, gaussian_Bpba_D4.B.value)
+        gaussian_Bpba_Bpba = f.get_potential("Gaussian", "Bpba", "Bpba")
+        self.assertAlmostEqual(1.3695484344717714, gaussian_Bpba_Bpba.excl_vol.value)
+        self.assertAlmostEqual(4.4444e-01, gaussian_Bpba_Bpba.Kappa.value)
+        self.assertAlmostEqual(1.8974e-01 / kT, gaussian_Bpba_Bpba.B.value)
+        harmonic_bond_Bpba_Bpba = f.get_potential(ff.HarmonicBond, "Bpba", "Bpba")
+        self.assertAlmostEqual(3.8718e-01, harmonic_bond_Bpba_Bpba.r0.value)
+        self.assertAlmostEqual(1.7903e+03 / kT, harmonic_bond_Bpba_Bpba.K.value)
 
 
 if __name__ == '__main__':
