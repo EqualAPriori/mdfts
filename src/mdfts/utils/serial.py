@@ -306,9 +306,14 @@ def serialize(track_args):
                 return ret
 
             def __repr__(self):  # pretier reporting to get around manual decorator
-                ret = "<{}.{}-wrapped {}.{} object at {}>".format(
-                    serialize.__module__,
-                    serialize.__name__,
+                # ret = "<{}.{}-wrapped {}.{} object at {}>".format(
+                #    serialize.__module__,
+                #    serialize.__name__,
+                #    self.__class__.__module__,
+                #    self.__class__.__name__,
+                #    hex(id(self)),
+                # )
+                ret = "<{}.{} object at {}>".format(
                     self.__class__.__module__,
                     self.__class__.__name__,
                     hex(id(self)),
@@ -492,10 +497,11 @@ class SerializableTypedList(collections.MutableSequence, Serializable):
         for v in l:
             if issubclass(self.oktype, Serializable):
                 if isinstance(v, collectionsABC.Mapping):
-                    self.append(self.oktype(**v))
+                    self.append(self.oktype.init_from_dict(v))
                 else:
                     # assume elements are ordered same as arguments of `cls`
-                    self.append(self.oktype(*v))
+                    # self.append(self.oktype(*v))
+                    self.append(self.oktype.init_from_dict(v))
             else:
                 if decoder is None:
                     self.append(decode(v, self.oktype))
@@ -634,7 +640,12 @@ class SerializableTypedDict(collections.MutableMapping, Serializable):
         return ret
 
     def __eq__(self, other):
-        return Serializable.__eq__(self, other)
+        # Todo: NEED TO FIX. CURRENTLY DEFECTIVE. Should check if elements of dict are equal, one by one.
+        # return Serializable.__eq__(self, other)
+        try:
+            return self._store == other._store
+        except:
+            return False
 
     # === HELPERS ===
     def check(self, key, v):
@@ -967,7 +978,7 @@ class SerializableFilterSet(FilterSet, Serializable):
                 )
             else:
                 warnings.warn("Empty filter, still need to specify a type")
-        _serial_vars = [
+        self._serial_vars = [
             "_pattern",
             "_ordered",
             "_oktype",
