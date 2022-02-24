@@ -111,6 +111,16 @@ class BeadFilter(serial.SerializableFilterSet):
                 if sp.name in d:
                     sp.from_dict(d[sp.name].to_dict())
 
+    @property
+    def bead_names(self):
+        res = []
+        for subpattern in self._pattern:
+            tmp = []
+            for bt in subpattern:
+                tmp.append(bt.name)
+            res.append(tuple(tmp))
+        return tuple(res)  # serial.process_pattern(res)[0]
+
     """
     @classmethod
     def init_from_dict(cls, d, *args, **kwargs):

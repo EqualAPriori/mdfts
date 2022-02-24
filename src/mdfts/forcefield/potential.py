@@ -131,9 +131,11 @@ class _Potential:  # (object):
         # serial.SerializableTypedList(BeadType, *list(value))
 
     @property
-    def bead_names(self):  # FIX
+    def bead_names(self):
         """List of names of BeadTypes in the Potential"""
-        return [bt.name for bt in self.bead_types]
+        # return [bt.name for bt in self.bead_types]
+        # Now returns a nested list of list of bead names
+        return self.bead_types.bead_names
 
     def compare_bead_types(self, other_potential):
         """Checks if another Potential shares the same BeadTypes as this
@@ -156,10 +158,25 @@ class _Potential:  # (object):
     def from_sim_specification(self, sim_spec, kT=1.0):
         """Reads in a _SimPotentialSpecification instance and sets values for
         and sets values for the parameters"""
-        # FIX BEAD_NAMES
+        # Todo verify that this fixes the BEAD_NAMES test
+        """
         if sim_spec.bead_names == self.bead_names or sim_spec.bead_names == list(
             reversed(self.bead_names)
         ):
+            pass
+        else:
+            raise ValueError(
+                "bead names in sim specification don't match bead names of the Potential"
+            )
+        """
+        # print(sim_spec.bead_names)
+        # print(serial.process_pattern(sim_spec.bead_names)[0])
+        # print(self.bead_names)
+
+        s1 = serial.FilterSet(*sim_spec.bead_names)
+        s2 = serial.FilterSet(*self.bead_names)
+
+        if s1 == s2:
             pass
         else:
             raise ValueError(
