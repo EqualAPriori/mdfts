@@ -19,9 +19,10 @@ __all__ = ["load_from_sim_ff", "ForceField"]
 
 # collect all classes of potentials and put them into an dictionary
 _POTENTIAL_TYPES = {}
-for key, val in locals().items():
-    if inspect.isclass(val) and issubclass(val, _Potential):
-        _POTENTIAL_TYPES[key] = val
+_key, _val = None, None
+for _key, _val in locals().items():
+    if inspect.isclass(_val) and issubclass(_val, _Potential):
+        _POTENTIAL_TYPES[_key] = _val
 
 
 class _SimPotentialSpecification(object):
@@ -63,7 +64,7 @@ def load_from_sim_ff(filepath, kT=1.0):
     ff = ForceField(kT=kT)
 
     # open sim force field file
-    s = open(filepath, 'r').read()
+    s = open(filepath, "r").read()
 
     # split string by potential
     potential_strings = [">>> POTENTIAL" + p for p in s.split(">>> POTENTIAL")[1:]]
@@ -73,7 +74,9 @@ def load_from_sim_ff(filepath, kT=1.0):
     for ps in potential_strings:
         potential_specification = _SimPotentialSpecification()
         potential_specification.from_string(ps)
-        potential_specification_dict[potential_specification.type].append(potential_specification)
+        potential_specification_dict[potential_specification.type].append(
+            potential_specification
+        )
 
     # check if there are Gaussian interactions; if there are, separate the like
     # Gaussian interactions from all the other ones
@@ -217,7 +220,9 @@ class ForceField(object):
         potential_class = potential.__class__
         potential_class_name = potential_class.__name__
         if potential_class_name not in self._potentials.keys():
-            self._potentials.add_entry_type(potential_class_name, potential_class, has_many=True)
+            self._potentials.add_entry_type(
+                potential_class_name, potential_class, has_many=True
+            )
 
         # add potential
         # TODO: add warning if _Potential using same BeadTypes already exists in ForceField
@@ -242,3 +247,28 @@ class ForceField(object):
         s += "BeadTypes: {}\n".format([bt.__str__() for bt in self.bead_types])
         s += "Potentials: {}".format([p.__str__() for p in self.potentials])
         return s
+
+    def from_dict(self, d):
+        self.infer_potential_schema(d)  # infer the potential schema
+
+        serial.Serializable.from_dict(self, d)
+
+        bead_type_dict = {bt.name: bt for bt in self.bead_types}
+        for ps in self._potentials.values():
+            for p in ps:
+                p._bead_types.align_to_dict(bead_type_dict)
+
+    def init_from_dict(cls, d, *args, **kwargs):
+        try:
+            obj = cls()
+        except:
+            print("Could not initialize {}".format(cls))
+
+        # final update
+        obj.from_dict(d)
+        return obj
+
+    def infer_potential_schema(self, d):
+        potentials = d["_potentials"]
+        for k in potentials:
+            self._potentials.add_entry_type(k, _POTENTIAL_TYPES[k], has_many=True)

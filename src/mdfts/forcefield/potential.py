@@ -8,10 +8,10 @@ later).
 """
 from __future__ import absolute_import, division, print_function
 
-from .beadtype import BeadType
+from .beadtype import BeadType, BeadFilter
 from mdfts.utils import serial
 
-__all__ = ['_Parameter', '_Potential', '_PairPotential']
+__all__ = ["_Parameter", "_Potential", "_PairPotential"]
 
 
 ###############################################################################
@@ -19,7 +19,7 @@ __all__ = ['_Parameter', '_Potential', '_PairPotential']
 ###############################################################################
 
 
-@serial.serialize(['_value', '_fixed'])
+@serial.serialize(["_value", "_fixed"])
 class _Parameter(object):
     """Container object for _Potential parameters
 
@@ -52,7 +52,11 @@ class _Parameter(object):
     def value(self, val):
         """Set value of the parameter"""
         if not isinstance(val, self.type):
-            raise TypeError("value of {} parameter must of type {}".format(self.name, self.type.__name__))
+            raise TypeError(
+                "value of {} parameter must of type {}".format(
+                    self.name, self.type.__name__
+                )
+            )
         self._value = val
 
     @property
@@ -85,15 +89,15 @@ class _Parameter(object):
 ###############################################################################
 
 
-@serial.serialize(['_bead_types'])
-class _Potential(object):
+@serial.serialize(["_bead_types"])
+class _Potential:  # (object):
     """Container object for a potential
 
     A _Potential represents an interaction between a specified number of
     BeadTypes. This class is a base class which all other potentials should
     inherit from.
     """
-    
+
     _NUM_BEAD_TYPES = 1
     _SERIALIZED_PARAMETERS = []
     _NON_SERIALIZED_PARAMETERS = []
@@ -116,17 +120,18 @@ class _Potential(object):
     @property
     def bead_types(self):
         """List of BeadTypes in the Potential"""
-        return list(self._bead_types)
+        return self._bead_types
 
     @bead_types.setter
     def bead_types(self, value):
         """Set BeadTypes of the Potential"""
         if len(value) != self._NUM_BEAD_TYPES:
             raise ValueError("attempted to set incorrect number of BeadTypes")
-        self._bead_types = serial.SerializableTypedList(BeadType, *list(value))
+        self._bead_types = BeadFilter(*value)
+        # serial.SerializableTypedList(BeadType, *list(value))
 
     @property
-    def bead_names(self):
+    def bead_names(self):  # FIX
         """List of names of BeadTypes in the Potential"""
         return [bt.name for bt in self.bead_types]
 
@@ -135,7 +140,9 @@ class _Potential(object):
         Potential"""
         # check that other potential is of type _Potential
         if not isinstance(other_potential, _Potential):
-            raise TypeError("other potential must be type _Potential or inherit from it")
+            raise TypeError(
+                "other potential must be type _Potential or inherit from it"
+            )
 
         # return False if potentials specify different number of bead types
         if self._NUM_BEAD_TYPES != other_potential._NUM_BEAD_TYPES:
@@ -143,21 +150,55 @@ class _Potential(object):
 
         # return True if bead types of other potential match, False if else
         # TODO: condition only works for _NUM_BEAD_TYPES<=2. Need to generalize
-        return set(self.bead_types) == set(other_potential.bead_types)
+        # return set(self.bead_types) == set(other_potential.bead_types)
+        return self.bead_types == other_potential.bead_types
 
     def from_sim_specification(self, sim_spec, kT=1.0):
         """Reads in a _SimPotentialSpecification instance and sets values for
         and sets values for the parameters"""
-        if sim_spec.bead_names == self.bead_names or sim_spec.bead_names == list(reversed(self.bead_names)):
+        # FIX BEAD_NAMES
+        if sim_spec.bead_names == self.bead_names or sim_spec.bead_names == list(
+            reversed(self.bead_names)
+        ):
             pass
         else:
-            raise ValueError("bead names in sim specification don't match bead names of the Potential")
+            raise ValueError(
+                "bead names in sim specification don't match bead names of the Potential"
+            )
+
+    @classmethod
+    def init_from_dict(cls, d, *args, **kwargs):
+        try:
+            obj = cls(BeadType("dummy1"))
+        except:
+            print("Could not initialize {}".format(cls))
+
+        # final update
+        obj.from_dict(d)
+        return obj
+
+    def custom_get(self, k, shorthand=True):
+        if k in ["bead_types", "_bead_types"]:
+            return self._bead_types.to_dict(shorthand=shorthand)
+        else:
+            return serial.Serializable.custom_get(self, k)
 
 
 class _PairPotential(_Potential):
-    """Container object for pair potentials
+    """Container object for (order-insensitive) pair potentials
 
     The only difference between this class and _Potential is the number of
     BeadTypes"""
 
     _NUM_BEAD_TYPES = 2
+
+    @classmethod
+    def init_from_dict(cls, d, *args, **kwargs):
+        try:
+            obj = cls(BeadType("dummy1"), BeadType("dummy2"))
+        except:
+            print("Could not initialize {}".format(cls))
+
+        # final update
+        obj.from_dict(d)
+        return obj
