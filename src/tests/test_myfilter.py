@@ -55,6 +55,11 @@ class TestFilter(unittest.TestCase):
         f = filterclass([obj1, obj3], obj1, obj2)  # 1-body filter with 2 elements
         self.assertTrue(f.match(obj1, obj3, obj2))
 
+        self.assertTrue(f.match(obj2, (obj3,), obj1))
+        print("THIS TEST")
+        f.match(obj2, (obj3,), obj2)
+        self.assertFalse(f.match(obj2, (obj3,), obj2))
+
     def test_FilterBasic(self):
         # Test basic syntax and processing
         f1 = myfilter.Filter((1, 2, (3, 4, 5, (6, 7))), 2, (3, 3, 4), 6)
@@ -116,7 +121,7 @@ class TestFilter(unittest.TestCase):
 
     # test FilterSet
     def test_FilterSet(self):
-        self.run_filters(myfilter.FilterSet, 1, 2, 3, 4)
+        self.run_filters(myfilter.FilterSet0, 1, 2, 3, 4)
 
         self.assertTrue(
             myfilter.eq_order_insensitive(((2, 1), (1, 2)), ((2, 1), (1, 2)))
@@ -124,9 +129,34 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(
             myfilter.eq_order_insensitive(((2, 1, 3), (1, 2)), ((2, 1), (1, 2, 3)))
         )
+        self.run_filters(myfilter.FilterSet, 1, 2, 3, 4)
 
     def test_TypedFilterSet(self):
-        self.run_filters(myfilter.TypedFilterSet, 1, 2, 3, 4)
+        self.run_filters(myfilter.SerializableFilterSet, 1, 2, 3, 4)
+
+        sfs0 = myfilter.SerializableFilterSet(myfilter.A(1), myfilter.A(2))
+        d = sfs0.to_dict()
+        sfs0.from_dict(d)
+        self.assertTrue(sfs0.match(1, 2))
+        self.assertTrue(sfs0.match((1,), (2,)))
+        self.assertFalse(sfs0.match(1, 3))
+
+        # to make a new SerializableFilterSet:
+        sfs1 = myfilter.SerializableFilterSet()
+        sfs1._oktype = int
+        sfs2 = myfilter.SerializableFilterSet()
+        sfs2._oktype = int
+        sfs1.custom_set("pattern", [1])
+        sfs2.custom_set("_pattern", [[1]])  # equivalent
+        self.assertTrue(sfs1 == sfs2)
+        sfs1.custom_set("_pattern", [(1,)])  # equivalent
+        self.assertTrue(sfs1 == sfs2)
+
+        sfs3 = myfilter.SerializableFilterSet()
+        sfs3._oktype = myfilter.A
+        sfs3.from_dict(d)
+        self.assertTrue(sfs0 == sfs3)
+        self.assertTrue(sfs3 == sfs0)
 
 
 if __name__ == "__main__":

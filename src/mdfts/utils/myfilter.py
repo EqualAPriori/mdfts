@@ -130,7 +130,6 @@ class A(serial.Serializable):
 
     @classmethod
     def init_from_dict(cls, d, *args, **kwargs):
-        print(cls)
         try:
             obj = cls(0, *args, **kwargs)
         except:
@@ -240,15 +239,31 @@ class Filter(collectionsABC.Sequence):
             permutations = itertools.permutations(self._pattern)
 
         for pattern in permutations:
+            # matched = []
             print("pattern {}".format(pattern))
             for ix, x in enumerate(args):
-                if isinstance(pattern[ix], collectionsABC.Iterable):
-                    if x not in pattern[ix]:
-                        break  # try next pattern
+                found_mismatch = False
+                if isinstance(x, collectionsABC.Iterable) and len(list(x)) == 1:
+                    target = x[0]
                 else:
-                    if x != pattern[ix]:
-                        break  # try next pattern
-                return True  # only if all x match to their corresponding patterns
+                    target = x
+
+                if isinstance(pattern[ix], collectionsABC.Iterable):
+                    if target not in pattern[ix]:
+                        found_mismatch = True
+                else:  # in case pattern is given as single element
+                    if target != pattern[ix]:
+                        found_mismatch = True
+                if found_mismatch:
+                    # matched.append(False)
+                    break  # try next pattern
+                # else:
+                #    matched.append(True)
+
+            if not found_mismatch:  # don't even need to check all(matched)!
+                return True
+            # if all(matched):
+            #    return True  # only if all x match to their corresponding patterns
         return False
 
     def __contains__(self, pattern):
@@ -650,7 +665,6 @@ class FilterSet(collectionsABC.Sequence):
             else:
                 other = FilterSet(*other, ordered=self._ordered)
         if len(self) != len(other) or self._ordered != other._ordered:
-            print("fail1")
             return False
 
         if self._hashable:  # use set equality for order-insensitive subpattern matching
@@ -658,15 +672,14 @@ class FilterSet(collectionsABC.Sequence):
                 return self._pattern == other._pattern
             else:
                 for p in itertools.permutations(other._pattern):
-                    if p == self._pattern:
+                    if tuple(p) == tuple(self._pattern):  # patterns should be iterable
+                        # cast to tuple to prevent spurious false from tuple != list (but contents equal)
                         return True
-                print("fail2")
                 return False
         else:  # need custom function for order-insensitive matching of subpatterns
             if self._ordered:
                 for item1, item2 in zip(self, other):
                     if not eq_order_insensitive(item1, item2):
-                        print("fail3")
                         return False
                 return True
             else:
@@ -844,7 +857,6 @@ class SerializableFilterSet(FilterSet, serial.Serializable):
         elif k in ["_pattern", "pattern"]:
             res = []
             pattern, _ = process_pattern(v)
-            print(pattern)
             for sub_pattern in pattern:
                 # pattern should be list of lists!
                 subres = []
@@ -898,23 +910,29 @@ def match(master_pattern, target_pattern, ordered=False, mode=0):
         for pattern in permutations:
             matched = []
             for ix, x in enumerate(target_pattern):
+                found_mismatch = False
+                if isinstance(x, collectionsABC.Iterable) and len(list(x)) == 1:
+                    target = x[0]
+                else:
+                    target = x
                 if isinstance(pattern[ix], collectionsABC.Iterable):
-                    if isinstance(x, collectionsABC.Iterable) and len(list(x)) == 1:
-                        if x[0] not in pattern[ix]:
-                            matched.append(False)
-                            break
-                    elif x not in pattern[ix]:
-                        matched.append(False)
-                        break  # try next pattern
+                    if target not in pattern[ix]:
+                        found_mismatch = True
                 else:  # in case the pattern is given as a single element instead of the less ambiguous (x,) format
-                    if x != pattern[ix]:
-                        matched.append(False)
-                        break  # try next pattern
+                    if target != pattern[ix]:
+                        found_mismatch = True
 
-                matched.append(True)
+                if found_mismatch:
+                    matched.append(False)
+                    break  # try next pattern
+                else:
+                    matched.append(True)
 
             if all(matched):
                 return True  # only if all x match to their corresponding patterns
+            # if not found_mismatch: #alternative, don't even need to check all(matched)!
+            #    return True
+
     elif mode == 1:  # itertools way, only works if everything is given in (1,) format
         # costly, preferably patterns are pre-computed
         patterns = list(itertools.product(master_pattern))
@@ -976,7 +994,6 @@ def process_pattern(args):
         preprocessed = [
             tuple(x) if isinstance(x, collectionsABC.Iterable) else x for x in args
         ]
-        print(preprocessed)
 
         hashable = all([isinstance(x, collectionsABC.Hashable) for x in preprocessed])
 
