@@ -18,6 +18,18 @@ class TestSerialize(unittest.TestCase):
                 self.x = x
                 self.y = y
 
+            @classmethod
+            def init_from_dict(cls, d, *args, **kwargs):
+                try:
+                    # obj = object.__new__(cls)
+                    obj = cls(None, None, *args, **kwargs)
+                except:
+                    print("Could not initialize {}".format(cls))
+
+                # final update
+                obj.from_dict(d)
+                return obj
+
         self.Srlz = Srlz
 
     def test_Serializable(self):
