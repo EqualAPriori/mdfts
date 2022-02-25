@@ -16,7 +16,7 @@ from __future__ import print_function
 # standard imports
 from collections import OrderedDict
 from operator import itemgetter
-
+import sys
 # 3rd party imports
 import mdtraj
 import numpy as np
@@ -44,10 +44,6 @@ class Topology(mdtraj.core.topology.Topology):
     
     def __init__(self):
         """Create a new Topology object based on mdtraj
-            Add molecules if system_pdb (with CONECT fields) is provided
-
-        Args:
-            system_pdb (str, optional): pdb describes system. Defaults to None.
         """
         mdtraj.core.topology.Topology.__init__(self)
         self._n_per_chaintype = {}
@@ -100,7 +96,7 @@ class Topology(mdtraj.core.topology.Topology):
         """
 
     def get_fts_chain_param(self, chain_top, chain_name, chain_stat='DGC'):
-        """_summary_
+        """Check chain architecture and return FTS parameters for this chain
 
         Args:
             chain_top (Topology): topology of a chain
@@ -113,7 +109,7 @@ class Topology(mdtraj.core.topology.Topology):
         g = chain_top.to_bondgraph()
         nx.draw_networkx(g)
          
-        # check for close-loop in chain
+        # check for closed-loop in chain
         has_cycle = False
         try:
             if nx.algorithms.cycles.find_cycle(g):
@@ -222,7 +218,6 @@ class Topology(mdtraj.core.topology.Topology):
         fts_param = {'Architecture': arch, 'Label': chain_name}
         if arch == 'point':
             fts_param.update({'Species': list(segments.values())[0]})
-            # fts_parm.update('Species': segments.items()[0].name)
         elif arch == 'linear':
             param = linear_param(list(segments.values())[0], chain_stat)
             fts_param = {key: val for d in (fts_param, param) for key, val in d.items()} 
@@ -282,7 +277,7 @@ if __name__ == "__main__":
 
     pdb_list = ['test_point.pdb', 'test_linear.pdb',
                 'test_comb.pdb','test_comb2.pdb','test_star.pdb','test_cycle.pdb']
-    mode = 5
+    mode = sys.argv[1]
     top = Topology()
     top.add_chain_from_pdb(pdb_list[mode], 3, chain_name='POLYMER')
     fts_param = top.fts_param
