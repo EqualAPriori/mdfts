@@ -38,9 +38,15 @@ class TestTopology(unittest.TestCase):
         a1 = FT.add_armtype([("B", 3), ("C", 2)])
         FT.add_graft(c, a1, [1, 2, 4, 8], 0, multiplicity=2)
         # ^^ is equivalent to: FT.add_graft(c,a1,[1,1,2,2,4,4,8,8],0,multiplicity = 1)
-        a2 = FT.add_armtype(["A", 2])
+        a2 = FT.add_armtype([("A", 2)])
         FT.add_graft(a1, a2, [0, 2, 4])
-        FT.isvalid()  # True, i.e. no infinite recursion chains
+        # FT.visualize()
+        # topology.plt.show()
+        self.assertTrue(FT.isvalid())  # True, i.e. no infinite recursion chains
+        FT.add_graft(a1, a2, [0, 2, 4])
+        self.assertTrue(FT.isvalid())  # True, i.e. no infinite recursion chains
+        FT.add_graft(a2, a1, [0], -1)
+        self.assertFalse(FT.isvalid())
 
         # Check alternative equivalent definitions
         FT1 = topology.FTSTopology()
@@ -50,7 +56,7 @@ class TestTopology(unittest.TestCase):
         a2 = FT1.add_armtype(["A", "A"])
         FT1.add_graft(a1, a2, [0, 2, 4])
 
-        # Shorthand, should be same as above
+        # Shorthand, should be same as above!
         FT2 = topology.FTSTopology()
         FT2.add_path(
             ["Aaaa", 10],
