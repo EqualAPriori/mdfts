@@ -63,7 +63,7 @@ class TestTopology(unittest.TestCase):
         # Shorthand, should be same as above!
         FT2 = topology.FTSTopology()
         FT2.add_path(
-            ["Aaaa", 10],
+            [("Aaaa", 10)],
             [
                 (("Bbbb", 3), ("Cccc", 2)),
                 [1, 1, 2, 2, 4, 4, 8, 8],
@@ -75,7 +75,7 @@ class TestTopology(unittest.TestCase):
         # Shorthand, with multiple graft types
         FT3 = topology.FTSTopology()
         FT3.add_path(
-            ["Aaaa", 10],
+            [("Aaaa", 10)],
             [  # graft type 1
                 (("Bbbb", 3), ("Cccc", 2)),
                 [1, 1, 2, 2, 4, 4, 8, 8],
@@ -88,7 +88,7 @@ class TestTopology(unittest.TestCase):
         # Test Enumeration
         FT3 = topology.FTSTopology()
         u = FT3.add_path(
-            ["Aaaa", 10],
+            [("Aaaa", 10)],
             [
                 (("Bbbb", 3), ("Cccc", 2)),
                 [1, 1, 2, 2, 4, 4, 8, 8],
@@ -106,6 +106,12 @@ class TestTopology(unittest.TestCase):
 
         FT5 = FT4.fully_enumerate()
         self.assertEqual(FT5.to_dict(), FT4.to_dict())
+
+        # Read write
+        FT5.save()
+        FT6 = topology.FTSTopology()
+        FT6.load()
+        self.assertEqual(FT5.to_dict(), FT6.to_dict())
 
 
 if __name__ == "__main__":

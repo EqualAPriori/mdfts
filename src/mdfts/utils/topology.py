@@ -55,6 +55,7 @@ import matplotlib.pyplot as plt
 
 # local imports
 from mdfts.utils import serial
+from mdfts.utils import yamlhelper
 
 
 def dict_to_string(fts_param, dict_name, n_indent=1):
@@ -418,7 +419,7 @@ class FTSTopology(serial.Serializable):
                 self.add_segment(seq)
 
         self.arm_types.append(arm)
-        self.g.add_node(self.arm_types.index(arm))
+        self.g.add_node(self.arm_types.index(arm), arm=arm)
         return arm
 
     def add_chaintype(self, chain_def, name=None):
@@ -632,6 +633,19 @@ class FTSTopology(serial.Serializable):
         return ft
 
     def to_pdb(self):
+        """Generate bead-by-bead definition, i.e. full connectivity graph
+
+
+        Notes:
+            Todo: also generate random walk initial coordinates!
+            Algorithm:
+                1. fully enumerate all grafts and multiplicities
+                2. start with backbone, write out all beads and add edges
+                3. for each branch
+                    write out the branch fully, add edges
+                        for each subbranch, write fully, add edges
+                            ... recursion?
+        """
         ft = self.fully_enumerate()
 
     def visualize(self, detailed=False):
@@ -721,6 +735,13 @@ class FTSTopology(serial.Serializable):
     def is_equivalent(self, other):
         # Todo
         raise NotImplementedError
+
+    def save(self, filename="top.yaml"):
+        yamlhelper.save_dict(filename, self.to_dict())
+
+    def load(self, filename="top.yaml"):
+        topdef = yamlhelper.load(filename)
+        self.from_dict(topdef)
 
     # === SERIALIZABLE INTERFACE ===
     def custom_get(self, k):
@@ -1238,7 +1259,7 @@ if __name__ == "__main__":
     # shorthand, should be same as above!
     FT2 = FTSTopology()
     FT2.add_path(
-        ["Aaaa", 10],
+        [("Aaaa", 10)],
         [
             (("Bbbb", 3), ("Cccc", 2)),
             [1, 1, 2, 2, 4, 4, 8, 8],
@@ -1252,7 +1273,7 @@ if __name__ == "__main__":
     # Test
     FT3 = FTSTopology()
     u = FT3.add_path(
-        ["Aaaa", 10],
+        [("Aaaa", 10)],
         [
             (("Bbbb", 3), ("Cccc", 2)),
             [1, 2, 4, 8],
