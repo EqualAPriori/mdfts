@@ -99,7 +99,7 @@ class TestTopology(unittest.TestCase):
         FT3.chain_types["Ch"] = u
 
         FT4 = topology.FTSTopology()
-        graft_def = topology.get_grafts(FT3, 0)
+        graft_def = FT3.get_grafts(0)
         u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
         FT4.chain_types["Ch"] = u
 

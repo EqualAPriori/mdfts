@@ -576,6 +576,40 @@ class FTSTopology(serial.Serializable):
 
         return u
 
+    def get_grafts(self, root, enum=False):
+        """Returns a nested list of grafts that FTSToplogy().add_path() can use
+        Fully enumerates all multiplicities and each graft_point
+
+        Args:
+            self (FTSTopology): with pre-existing chains
+            root (ArmType or int): root arm to start enumerating from
+
+        Returns:
+            list: of lists
+        """
+        if isinstance(root, ArmType):
+            root = self.arm_types.index(root)
+
+        grafts = [(e1, d) for e0, e1, d in self.g.edges(data=True) if e0 == root]
+
+        graft_defs = []
+        for e, d in grafts:
+            if d["graft_from"] != 0:
+                raise ValueError(
+                    "Chain enumeration currently only works if grafting from bead 0"
+                )
+
+            for ii in range(d["multiplicity"]):
+                for graft_point in d["graft_at"]:
+                    graft_def = [
+                        self.arm_types[e].sequence_compactest(),
+                        [graft_point],
+                    ]
+                    graft_def.extend(self.get_grafts(e))
+                    if len(graft_def) > 0:
+                        graft_defs.append(graft_def)
+        return graft_defs
+
     def fully_enumerate(self):
         """Outputs a topology/graph where every branch is explicitly enumerated
 
@@ -588,14 +622,14 @@ class FTSTopology(serial.Serializable):
         for chain_name, arm_index in self.chain_types.items():
             arm_type = self.arm_types[arm_index]
 
-            graft_def = get_grafts(self, arm_index)
+            graft_def = self.get_grafts(arm_index)
             u = ft.add_path(arm_type.sequence_compactest(), *graft_def, mode=1)
             ft.chain_types[chain_name] = u
 
         return ft
 
     def to_pdb(self):
-        pass
+        ft = self.fully_enumerate(self)
 
     def visualize(self, detailed=False):
         """Visualize the armtype information flow
@@ -706,40 +740,6 @@ class FTSTopology(serial.Serializable):
                 raise ValueError("did not receive proper node, edge data")
         else:
             super(FTSTopology, self).custom_set(k, val)
-
-
-def get_grafts(top_source, root):
-    """Returns a nested list of grafts that FTSToplogy().add_path() can use
-
-    Args:
-        top_source (FTSTopology): with pre-existing chains
-        root (ArmType or int): root arm to start enumerating from
-
-    Returns:
-        list: of lists
-    """
-    if isinstance(root, ArmType):
-        root = top_source.arm_types.index(root)
-
-    grafts = [(e1, d) for e0, e1, d in top_source.g.edges(data=True) if e0 == root]
-
-    graft_defs = []
-    for e, d in grafts:
-        if d["graft_from"] != 0:
-            raise ValueError(
-                "Chain enumeration currently only works if grafting from bead 0"
-            )
-
-        for ii in range(d["multiplicity"]):
-            for graft_point in d["graft_at"]:
-                graft_def = [
-                    top_source.arm_types[e].sequence_compactest(),
-                    [graft_point],
-                ]
-                graft_def.extend(get_grafts(top_source, e))
-                if len(graft_def) > 0:
-                    graft_defs.append(graft_def)
-    return graft_defs
 
 
 class Topology(mdtraj.core.topology.Topology):
@@ -1259,7 +1259,7 @@ if __name__ == "__main__":
     FT3.chain_types["Ch"] = u
 
     FT4 = FTSTopology()
-    graft_def = get_grafts(FT3, 0)
+    graft_def = FT3.get_grafts(0)
     u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
     FT4.chain_types["Ch"] = u
 
