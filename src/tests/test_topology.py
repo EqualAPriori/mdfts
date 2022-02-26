@@ -85,6 +85,29 @@ class TestTopology(unittest.TestCase):
             mode=1,  # make new arm_types as we go
         )
 
+        # Test Enumeration
+        FT3 = topology.FTSTopology()
+        u = FT3.add_path(
+            ["Aaaa", 10],
+            [
+                (("Bbbb", 3), ("Cccc", 2)),
+                [1, 1, 2, 2, 4, 4, 8, 8],
+                [[("Aaaa", 2)], [0, 2, 4]],
+            ],
+            mode=1,
+        )
+        FT3.chain_types["Ch"] = u
+
+        FT4 = topology.FTSTopology()
+        graft_def = topology.get_grafts(FT3, 0)
+        u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
+        FT4.chain_types["Ch"] = u
+
+        self.assertEqual(FT4.to_dict(), FT3.to_dict())
+
+        FT5 = FT4.fully_enumerate()
+        self.assertEqual(FT5.to_dict(), FT4.to_dict())
+
 
 if __name__ == "__main__":
     unittest.main()

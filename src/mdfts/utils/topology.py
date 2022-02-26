@@ -519,6 +519,8 @@ class FTSTopology(serial.Serializable):
         Args:
             branch_defs (list): of lists or tuple of tuples
 
+        Returns:
+            (int): index of root where things started
         Note:
             ASSUMES:
                 always grafting from end 0, multiplicity = 1
@@ -572,9 +574,25 @@ class FTSTopology(serial.Serializable):
                     print(sub_grafts)
                     self.add_path(v, sg, mode=mode)
 
+        return u
+
     def fully_enumerate(self):
-        """Outputs a topology/graph where every branch is explicitly enumerated"""
-        pass
+        """Outputs a topology/graph where every branch is explicitly enumerated
+
+        only works if:
+        - acyclic
+        - no directed edge is defined more than once
+        """
+        ft = FTSTopology()
+
+        for chain_name, arm_index in self.chain_types.items():
+            arm_type = self.arm_types[arm_index]
+
+            graft_def = get_grafts(self, arm_index)
+            u = ft.add_path(arm_type.sequence_compactest(), *graft_def, mode=1)
+            ft.chain_types[chain_name] = u
+
+        return ft
 
     def to_pdb(self):
         pass
@@ -682,6 +700,36 @@ class FTSTopology(serial.Serializable):
                 raise ValueError("did not receive proper node, edge data")
         else:
             super(FTSTopology, self).custom_set(k, val)
+
+
+def get_grafts(top_source, root):
+    """Returns a nested list of grafts that FTSToplogy().add_path() can use
+
+    Args:
+        top_source (FTSTopology): with pre-existing chains
+        root (ArmType or int): root arm to start enumerating from
+
+    Returns:
+        list: of lists
+    """
+    if isinstance(root, ArmType):
+        root = top_source.arm_types.index(root)
+
+    grafts = [(e1, d) for e0, e1, d in top_source.g.edges(data=True) if e0 == root]
+
+    graft_defs = []
+    for e, d in grafts:
+        if d["graft_from"] != 0:
+            raise ValueError(
+                "Chain enumeration currently only works if grafting from bead 0"
+            )
+        graft_def = []
+        for ii in range(d["multiplicity"]):
+            graft_def = [top_source.arm_types[e].sequence_compactest(), d["graft_at"]]
+            graft_def.extend(get_grafts(top_source, e))
+        if len(graft_def) > 0:
+            graft_defs.append(graft_def)
+    return graft_defs
 
 
 class Topology(mdtraj.core.topology.Topology):
@@ -1186,3 +1234,26 @@ if __name__ == "__main__":
     )
     FT2.add_graft(2, 1, [0], -1)
     FT2.visualize(True)
+
+    # Test
+    FT3 = FTSTopology()
+    u = FT3.add_path(
+        ["Aaaa", 10],
+        [
+            (("Bbbb", 3), ("Cccc", 2)),
+            [1, 1, 2, 2, 4, 4, 8, 8],
+            [[("Aaaa", 2)], [0, 2, 4]],
+        ],
+        mode=1,
+    )
+    FT3.chain_types["Ch"] = u
+
+    FT4 = FTSTopology()
+    graft_def = get_grafts(FT3, 0)
+    u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
+    FT4.chain_types["Ch"] = u
+
+    FT4.to_dict() == FT3.to_dict()
+
+    FT5 = FT4.fully_enumerate()
+    FT5.to_dict() == FT4.to_dict()
