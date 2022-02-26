@@ -379,9 +379,9 @@ class FTSTopology(serial.Serializable):
 
     def __init__(self):
         self._serial_vars = [
-            "segments",
-            "arm_types",
             "chain_types",
+            "arm_types",
+            "segments",
             "g",
         ]
         self.segments = serial.SerializableTypedList(Segment)
@@ -632,9 +632,57 @@ class FTSTopology(serial.Serializable):
 
         return ft
 
-    def to_pdb(self):
-        """Generate bead-by-bead definition, i.e. full connectivity graph
+    def expand_graft_to_beads(
+        self, arm_ind, graft_index=-1, node_list=None, edge_list=None
+    ):
+        """
+        add on arm_type(arm_ind) to node and edge lists
+        then for each graft off of the arm, expand
 
+        Assumes arms are all attached at their beginning index!
+        """
+        if graft_index == -1:  # this arm not grafted to anything, i.e. is a backbone
+            fresh_chain = True
+            node_list = []
+            edge_list = []
+        else:
+            fresh_chain = False
+
+        bead_names = self.arm_types[arm_ind].sequence()
+        start_ind = len(node_list)
+        end_ind = start_ind + len(bead_names)
+
+        # add this new arm
+        bead_inds = list(range(start_ind, end_ind))
+        node_list.extend(bead_names)
+
+        if graft_index <= -1:
+            new_edges = []
+        else:
+            new_edges = [(graft_index, bead_inds[0])]
+        new_edges.extend((ii - 1, ii) for ii in bead_inds[1:])
+        edge_list.extend(new_edges)
+
+        # start adding child generations
+        grafts = [(e1, d) for e0, e1, d in self.g.edges(data=True) if e0 == arm_ind]
+
+        for e, d in grafts:
+            if d["graft_from"] != 0:
+                raise ValueError(
+                    "Chain enumeration currently only works if grafting from bead 0"
+                )
+
+            for ii in range(d["multiplicity"]):
+                for graft_point in d["graft_at"]:
+                    self.expand_graft_to_beads(
+                        e, bead_inds[graft_point], node_list, edge_list
+                    )
+
+        if fresh_chain:
+            return node_list, edge_list
+
+    def expand_to_beads(self):
+        """Generate bead-by-bead definition, i.e. full connectivity graph
 
         Notes:
             Todo: also generate random walk initial coordinates!
@@ -645,8 +693,16 @@ class FTSTopology(serial.Serializable):
                     write out the branch fully, add edges
                         for each subbranch, write fully, add edges
                             ... recursion?
+
+            Question: do we want each chain indexed to zero (e.g. for an independent pdb)
+                or do we want the index to build on one another?
         """
-        ft = self.fully_enumerate()
+        chains = OrderedDict()
+        for chain_name, arm_index in self.chain_types.items():
+            ch = self.expand_graft_to_beads(arm_index)
+            # chains.append(ch)
+            chains[chain_name] = ch
+        return chains
 
     def visualize(self, detailed=False):
         """Visualize the armtype information flow
@@ -1291,3 +1347,17 @@ if __name__ == "__main__":
 
     FT5 = FT4.fully_enumerate()
     FT5.to_dict() == FT4.to_dict()
+
+    FT6 = FTSTopology()
+    u = FT6.add_path(
+        [("Aaaa", 10)],
+        [
+            (("Bbbb", 3), ("Cccc", 2)),
+            [1, 1, 8, 8],
+            [[("Aaaa", 2)], [0, 2, 4]],
+        ],
+        mode=1,
+        as_chain_name="Ch",
+    )
+    FT7 = FT6.fully_enumerate()
+    FT7.visualize()
