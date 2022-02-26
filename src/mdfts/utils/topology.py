@@ -1319,8 +1319,10 @@ if __name__ == "__main__":
     print("\n" + s)
     plt.show()
     """
+    # === A sample dummy segment. Just a convenience object, not necessary to make
     s = Segment(["A", "B", ("A", 3)])
 
+    # === Basic example of how to make a FTS topology
     FT = FTSTopology()
 
     c = FT.add_chaintype([("A", 10)])
@@ -1335,7 +1337,7 @@ if __name__ == "__main__":
     print(FT.isvalid())
     FT.visualize(True)
 
-    # shorthand, should be same as above!
+    # === Testing shorthand, should be same as above!
     FT2 = FTSTopology()
     FT2.add_path(
         [("Aaaa", 10)],
@@ -1348,8 +1350,9 @@ if __name__ == "__main__":
     )
     FT2.add_graft(2, 1, [0], -1)
     FT2.visualize(True)
+    FT2.save("test_topology.yaml")
 
-    # Test
+    # === Testing enumerating all multiplicities and grafts explicitly
     FT3 = FTSTopology()
     u = FT3.add_path(
         [("Aaaa", 10)],
@@ -1371,6 +1374,7 @@ if __name__ == "__main__":
     FT5 = FT4.fully_enumerate()
     FT5.to_dict() == FT4.to_dict()
 
+    # === Testing expanding to beads
     FT6 = FTSTopology()
     u = FT6.add_path(
         [("Aaaa", 10)],
@@ -1387,7 +1391,7 @@ if __name__ == "__main__":
 
     t = FT7.expand_to_beads()
 
-    # visualize pdb
+    # === Make pdb for visualization:
     FT8 = FTSTopology()
     u = FT8.add_path(
         [("Aaaa", 10)],
