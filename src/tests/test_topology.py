@@ -95,13 +95,12 @@ class TestTopology(unittest.TestCase):
                 [[("Aaaa", 2)], [0, 2, 4]],
             ],
             mode=1,
+            as_chain_name="Ch",
         )
-        FT3.chain_types["Ch"] = u
 
         FT4 = topology.FTSTopology()
         graft_def = FT3.get_grafts(0)
-        u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
-        FT4.chain_types["Ch"] = u
+        u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1, as_chain_name="Ch")
 
         self.assertNotEqual(FT4.to_dict(), FT3.to_dict())
 

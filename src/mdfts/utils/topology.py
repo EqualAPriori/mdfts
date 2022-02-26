@@ -511,13 +511,14 @@ class FTSTopology(serial.Serializable):
                 raise TypeError("arm must be specified by index or by instance")
         return u
 
-    def add_path(self, root, *args, mode=0):
+    def add_path(self, root, *args, mode=0, as_chain_name=False):
         """Shorthand for defining a chain, with only one new kind of chain attached to each branch
 
         nesting allowed!?
 
         Args:
             branch_defs (list): of lists or tuple of tuples
+            as_chain_name (bool,str): whether or not to label `root` as a chain
 
         Returns:
             (int): index of root where things started
@@ -551,6 +552,8 @@ class FTSTopology(serial.Serializable):
                 raise ValueError("must use pre-defined armtype")
         elif mode == 1:
             u = self.get_armtype_index(root, add_if_not_found=True)
+        if as_chain_name:
+            self.chain_types[as_chain_name] = u
 
         for branch_def in branch_defs:
             print("branch_def {}".format(branch_def))
@@ -629,7 +632,7 @@ class FTSTopology(serial.Serializable):
         return ft
 
     def to_pdb(self):
-        ft = self.fully_enumerate(self)
+        ft = self.fully_enumerate()
 
     def visualize(self, detailed=False):
         """Visualize the armtype information flow
@@ -716,6 +719,7 @@ class FTSTopology(serial.Serializable):
             return True
 
     def is_equivalent(self, other):
+        # Todo
         raise NotImplementedError
 
     # === SERIALIZABLE INTERFACE ===
@@ -1255,13 +1259,12 @@ if __name__ == "__main__":
             [[("Aaaa", 2)], [0, 2, 4]],
         ],
         mode=1,
+        as_chain_name="Ch",
     )
-    FT3.chain_types["Ch"] = u
 
     FT4 = FTSTopology()
     graft_def = FT3.get_grafts(0)
-    u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
-    FT4.chain_types["Ch"] = u
+    u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1, as_chain_name="Ch")
 
     FT4.to_dict() == FT3.to_dict()
 
