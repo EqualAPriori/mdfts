@@ -334,9 +334,9 @@ class FTSTopology(serial.Serializable):
             "segments",
             "g",
         ]
-        self.segments = serial.SerializableTypedList(Segment)
-        self.arm_types = serial.SerializableTypedList(ArmType)
         self.chain_types = OrderedDict()
+        self.arm_types = serial.SerializableTypedList(ArmType)
+        self.segments = serial.SerializableTypedList(Segment)
         self.g = nx.MultiDiGraph()
 
     def add_segment(self, seg_def):
@@ -1347,6 +1347,7 @@ if __name__ == "__main__":
             [[("Aaaa", 2)], [0, 2, 4]],
         ],
         mode=1,
+        as_chain_name="Ch",
     )
     FT2.add_graft(2, 1, [0], -1)
     FT2.visualize(True)
