@@ -1373,6 +1373,7 @@ if __name__ == "__main__":
 
     FT5 = FT4.fully_enumerate()
     FT5.to_dict() == FT4.to_dict()
+    FT5.visualize(True)
 
     # === Testing expanding to beads
     FT6 = FTSTopology()
@@ -1387,7 +1388,6 @@ if __name__ == "__main__":
         as_chain_name="Ch",
     )
     FT7 = FT6.fully_enumerate()
-    FT7.visualize()
 
     t = FT7.expand_to_beads()
 
