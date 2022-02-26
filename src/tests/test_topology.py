@@ -48,6 +48,10 @@ class TestTopology(unittest.TestCase):
         FT.add_graft(a2, a1, [0], -1)
         self.assertFalse(FT.isvalid())
 
+        # Check Serialization
+        f = topology.FTSTopology.init_from_dict(FT.to_dict())
+        self.assertEqual(f.to_dict(), FT.to_dict())
+
         # Check alternative equivalent definitions
         FT1 = topology.FTSTopology()
         c = FT1.add_chaintype([("A", 5), ("A", 5)])

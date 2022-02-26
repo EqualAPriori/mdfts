@@ -163,21 +163,17 @@ class Segment(serial.Serializable):
         # will be a list of beadnames
         return self._data["BlockSpecies"]
 
-    """
     @block_species.setter
     def block_species(self, val):
         self._data["BlockSpecies"] = validate_list(val, (str, int))
-    """
 
     @property
     def n_per_block(self):
         return self._data["NPerBlock"]
 
-    """
     @n_per_block.setter
     def n_per_block(self, val):
         self._data["NPerBlock"] = validate_list(val, (str, int))
-    """
 
     @property
     def n_beads(self):
@@ -381,9 +377,14 @@ class FTSTopology(serial.Serializable):
     """
 
     def __init__(self):
-        self._serial_vars = []
-        self.segments = []
-        self.arm_types = []
+        self._serial_vars = [
+            "segments",
+            "arm_types",
+            "chain_types",
+            "g",
+        ]
+        self.segments = serial.SerializableTypedList(Segment)
+        self.arm_types = serial.SerializableTypedList(ArmType)
         self.chain_types = OrderedDict()
         self.g = nx.MultiDiGraph()
 
@@ -424,7 +425,7 @@ class FTSTopology(serial.Serializable):
         arm = self.add_armtype(chain_def)
         if name is None:
             name = "Chain{}".format(len(self.chain_types) + 1)
-        self.chain_types[name] = arm
+        self.chain_types[name] = self.arm_types.index(arm)
         return arm
 
     def add_graft(
@@ -597,7 +598,7 @@ class FTSTopology(serial.Serializable):
 
             else:
                 edge_labels[u, v] = label
-            data["label"] = label  # for pydot
+            # data["label"] = label  # for pydot
 
         node_labels = {}
         for u in self.g.nodes():
@@ -658,6 +659,29 @@ class FTSTopology(serial.Serializable):
 
     def is_equivalent(self, other):
         raise NotImplementedError
+
+    # === SERIALIZABLE INTERFACE ===
+    def custom_get(self, k):
+        if k == "g":
+            nodes = list(self.g.nodes)
+            edges = list(self.g.edges(data=True))
+            return {"nodes": nodes, "edges": edges}
+        else:
+            return super(FTSTopology, self).custom_get(k)
+
+    def custom_set(self, k, val):
+        if k == "g":
+            if isinstance(val, collectionsABC.Mapping):
+                if "nodes" in val and "edges" in val:
+                    self.g = nx.MultiDiGraph()
+                    self.g.add_nodes_from(val["nodes"])
+                    self.g.add_edges_from(val["edges"])
+                else:
+                    raise ValueError("did not receive proper node, edge data")
+            else:
+                raise ValueError("did not receive proper node, edge data")
+        else:
+            super(FTSTopology, self).custom_set(k, val)
 
 
 class Topology(mdtraj.core.topology.Topology):
