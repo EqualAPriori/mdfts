@@ -103,7 +103,7 @@ class TestTopology(unittest.TestCase):
         u = FT4.add_path(FT3.arm_types[0], *graft_def, mode=1)
         FT4.chain_types["Ch"] = u
 
-        self.assertEqual(FT4.to_dict(), FT3.to_dict())
+        self.assertNotEqual(FT4.to_dict(), FT3.to_dict())
 
         FT5 = FT4.fully_enumerate()
         self.assertEqual(FT5.to_dict(), FT4.to_dict())

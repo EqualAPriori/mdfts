@@ -632,7 +632,13 @@ class FTSTopology(serial.Serializable):
         # from digraph_helper import my_draw_networkx_edge_labels
         arc_rad = 0.25
         G = self.g
-        pos = nx.spring_layout(G, seed=5)
+        pos = nx.kamada_kawai_layout(G)
+        for u, v, d in G.edges(data=True):
+            d["weights"] = 10.0
+        pos = nx.spring_layout(G, pos=pos, k=2)
+        for u, v, d in G.edges(data=True):
+            d.pop("weights")
+
         fig, ax = plt.subplots()
         if detailed:
             nx.draw_networkx_nodes(G, pos, ax=ax)
@@ -723,12 +729,16 @@ def get_grafts(top_source, root):
             raise ValueError(
                 "Chain enumeration currently only works if grafting from bead 0"
             )
-        graft_def = []
+
         for ii in range(d["multiplicity"]):
-            graft_def = [top_source.arm_types[e].sequence_compactest(), d["graft_at"]]
-            graft_def.extend(get_grafts(top_source, e))
-        if len(graft_def) > 0:
-            graft_defs.append(graft_def)
+            for graft_point in d["graft_at"]:
+                graft_def = [
+                    top_source.arm_types[e].sequence_compactest(),
+                    [graft_point],
+                ]
+                graft_def.extend(get_grafts(top_source, e))
+                if len(graft_def) > 0:
+                    graft_defs.append(graft_def)
     return graft_defs
 
 
@@ -1241,7 +1251,7 @@ if __name__ == "__main__":
         ["Aaaa", 10],
         [
             (("Bbbb", 3), ("Cccc", 2)),
-            [1, 1, 2, 2, 4, 4, 8, 8],
+            [1, 2, 4, 8],
             [[("Aaaa", 2)], [0, 2, 4]],
         ],
         mode=1,
