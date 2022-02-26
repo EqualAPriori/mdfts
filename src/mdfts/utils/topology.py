@@ -89,6 +89,7 @@ def validate_list(val, types):
     return tmp
 
 
+# ===== FTS-friendly Storage Container/Convention =====
 """
 Chain conversion will need:
     auto-detect architecture
@@ -650,7 +651,7 @@ class FTSTopology(serial.Serializable):
         for chain_name, arm_index in self.chain_types.items():
             ch = self.expand_graft_to_beads(arm_index)
             # chains.append(ch)
-            chains[chain_name] = ch
+            chains[chain_name] = {"beads": ch[0], "bonds": ch[1]}
         return chains
 
     def visualize(self, detailed=False):
@@ -772,6 +773,79 @@ class FTSTopology(serial.Serializable):
             super(FTSTopology, self).custom_set(k, val)
 
 
+def gen_bead_coordinates(bead_list, bond_list, bondl=0.5, stat="DGC"):
+    """_summary_
+
+    Args:
+        bead_list (listlike): bead names
+        bond_list (listlike): list of (i,j) bond index tuple pairs
+        bondl (float, list): bond length. can also be a list. Defaults to 0.5.
+        stat (str, list): DGC or FJC. can also be a list. Defaults to "DGC".
+    """
+    import numpy as np
+
+    n_beads = len(bead_list)
+    pos = np.zeros([n_beads, 3])
+    print(pos.shape)
+    if isinstance(bondl, (int, float)):
+        bondl = np.array([bondl] * n_beads)
+    if isinstance(stat, str):
+        stat = [stat] * n_beads
+    for ind, b in enumerate(bond_list):
+        bl = bondl[ind]
+        s = stat[ind]
+
+        p0 = pos[b[0], :]
+        if s.lower() == "dgc":
+            stdev = bl / (3.0 ** 0.5)
+            p1 = p0 + np.random.normal(scale=stdev, size=[1, 3])
+            pos[b[1], :] = p1  # update position
+        elif s.lower() == "fjc":
+            # need to pick uniform randomly on surface of sphere
+            # see https://mathworld.wolfram.com/SpherePointPicking.html
+            r = np.random.normal(scale=1.0, size=[1, 3])
+            r /= np.linalg.norm(r)
+            p1 = p0 + bl * r
+            pos[b[1], :] = p1
+    return pos
+
+
+def make_pdb(bead_names, bond_list, pos):
+    """Make pdb, assume is a single chain.
+
+    Args:
+        bead_names (listlike):
+        bond_list (listlike):
+        pos (array): n x 3
+    """
+    t = mdtraj.Topology()
+
+    atom_map = {}
+    atom_types = []
+    c = t.add_chain()
+    for bn in bead_names:
+        r = t.add_residue(bn, c)
+
+        try:
+            el = mdtraj.core.element.Element.getBySymbol(bn)
+        except:
+            curr_ind = len(mdtraj.core.element.Element._elements_by_atomic_number)
+            el = mdtraj.core.element.Element(curr_ind + 1, bn, bn, 1.0, 1.0)
+        a = t.add_atom(bn, el, r)
+        atom_types.append(a.name)
+        atom_map.update({a.index: a})
+
+    for bond in bond_list:
+        a1, a2 = bond
+        a1 = atom_map[a1]
+        a2 = atom_map[a2]
+        t.add_bond(a1, a2)
+
+    traj = mdtraj.Trajectory(pos, t)
+    return traj
+
+
+# ===== Getting from PDB =====
 class Topology(mdtraj.core.topology.Topology):
     """Create a new topology based on mdtraj topology class"""
 
@@ -1310,3 +1384,25 @@ if __name__ == "__main__":
     )
     FT7 = FT6.fully_enumerate()
     FT7.visualize()
+
+    t = FT7.expand_to_beads()
+
+    # visualize pdb
+    FT8 = FTSTopology()
+    u = FT8.add_path(
+        [("Aaaa", 10)],
+        [
+            (("Bbbb", 3), ("Cccc", 2)),
+            [1, 1, 8, 8],
+            [[("Dddd", 2)], [0, 2, 4]],
+        ],
+        mode=1,
+        as_chain_name="Ch",
+    )
+    t = FT8.expand_to_beads()
+    for ch_name, ch_def in t.items():
+        pos = gen_bead_coordinates(
+            ch_def["beads"], ch_def["bonds"], bondl=0.25, stat="FJC"
+        )
+        traj = make_pdb(ch_def["beads"], ch_def["bonds"], pos)
+        traj.save("test_{}.pdb".format(ch_name))
