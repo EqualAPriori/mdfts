@@ -89,6 +89,46 @@ def validate_list(val, types):
     return tmp
 
 
+"""
+Chain conversion will need:
+    auto-detect architecture
+    auto-detect num SideArmTypes
+
+Allow for *multigraph* specification! Envisioned usage:
+    t = FTSTopology()
+    # add ArmTypes, which are *unique* propagator segments, treated as nodes in a graph
+    a1 = t.add_armtype(arm_def)
+    a2 = t.add_armtype(arm_def)
+    # add grafting definitions
+    t.add_graft(a2,a1,[grafting_positions])
+
+    For the most part, assume that grafts are attached by their initial index to the backbone.
+    This can be relaxed in the future if needed.
+
+    # label an arm_type as a backbone, i.e. the root of a chain
+    t.chain_type[ "Chain1" ] = t.arm_types.index(a2)
+
+can have that multigraph specification be *outside* the sidearm definitions...
+OK! So in the end, define as multigraph,
+which should be agnostic and easily translatable to wherever we choose to
+define grafts in the PolyFTS definition!
+
+NOTE: in the multi-arm definition,
+inherently should not allow for cyclics! which is counter to typical graph constructions
+this is because each propagation down a graft makes a new graft,
+instead of connecting to existing graft
+(using an existing graft only makes sense if it's a unique graft that doesn't repeat)
+
+i.e.
+chains = particular arm_type in [arm_types]
+arm_types = things with backbones made from segments; mean to be unique
+segments = [] common reusable chain pieces, not crucial, just a convenience term
+
+directed edges (u1,u2)['graft']=[list of ordered grafting pairs/indices]
+    i.e. saying u2 is grafted to u1 @ grafting points
+"""
+
+
 class Segment(serial.Serializable):
     """Segments represent *linear* pieces of chain"""
 
@@ -264,97 +304,6 @@ class ArmType(Segment):
 
     def __hash__(self):
         return hash(id(self) >> 4)
-
-
-class Chain(serial.Serializable):
-    """Container for a chain
-    auto-detect architecture
-    auto-detect num SideArmTypes
-
-    c = chain(label)
-    c.backbone = segment
-    c.add_sidearm(unit, graftingpositions)
-
-    u = unit(label)
-    u.root = segment
-    u.add_sidearm(unit or segment, graftingpositions)
-    #main difference: backbone evaluates *architecture* as well
-    #need to be careful: doesn't get circular
-
-    another approach:
-    c.add_segment(segment, prev segment to graft to, position, multiplicity/# grafts)
-    i.e. storing a connectivity graph
-
-    i.e. as lots of objects that store their local connections (like linked list), or one large object storing everyone's connections
-
-    but nested multi-gen comb is not well-defined right now anyway...
-
-    note for turning into pdb, will need multi-generation anyway...
-
-    one way:
-    list of [segments]
-    tuples of (segment, grafting positions, multiplicity/graft)
-        - always assuming graft is grafted at end-0
-    then this can be enumerated!
-    My's convention is new segment per graft, and 1 grafting position per connection, potentially with multiplicity
-
-    but... can I reuse segments in different units?
-    or does each unit need new segment definitions?
-    e.g. can declare new units based on a repertoire of segments...
-    and then units themselves are unique/non-repeated?
-
-    i.e. in the format I proposed, segments are just shorthand for the blockdef... that a unit can initialize itself with
-    so not that the segments/sequences actually pre-compute anything.
-    most likely they need to be specially calculated anyway to account for grafts, etc.!
-
-    multiplicity is grafts/point
-
-    while numarms is literally... the # of arms... weird why that has to be specified.
-
-    advantage of putting the grafting position in the sidearmtype:
-    very transparent that the same propagator can be used multiple times!
-
-    i.e. is the "reverse propagator" perspective
-    either way, need to allow for *multigraph* specification!
-
-    can have that multigraph specification be *outside* the graft definitions...
-    OK! So in the end, define as multigraph,
-    which should be agnostic and easily translatable to wherever we choose to
-    define grafts in the PolyFTS definition!
-
-    NOTE: in the multi-arm definition,
-    inherently does not allow for cyclics! which is counter to typical graph constructions
-    this is because each propagation down a graft makes a new grapt,
-    instead of connecting to existing graft
-    (using an existing graft only makes sense if it's a unique graft that doesn't repeat)
-
-    i.e.
-    chains = particular in []
-    segments = []
-    units = things with backbones made from segments, really just for shorthand
-    directed edges (u1,u2)['graft']=[list of ordered grafting pairs/indices]
-    """
-
-    def __init__(self, label=None):
-        if label is None:
-            self.label = "CHAIN"
-        self._serial_vars = ["label"]
-
-    @property
-    def architecture(self):
-        pass
-
-    @property
-    def label(self):
-        return self._label
-
-    @label.setter
-    def label(self, val):
-        self._label = val
-
-    @property
-    def num_sidearm_types(self):
-        pass
 
 
 class FTSTopology(serial.Serializable):
