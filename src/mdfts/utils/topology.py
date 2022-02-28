@@ -37,8 +37,11 @@ from __future__ import print_function
 
 # standard imports
 from collections import OrderedDict
+from gc import collect
+from multiprocessing.sharedctypes import Value
 from operator import itemgetter
-import sys, warnings
+import os, sys, warnings
+from typing import Mapping
 import collections
 
 try:
@@ -773,6 +776,7 @@ class FTSTopology(serial.Serializable):
             super(FTSTopology, self).custom_set(k, val)
 
 
+# Some other helpers
 def gen_bead_coordinates(bead_list, bond_list, bondl=0.5, stat="DGC"):
     """_summary_
 
@@ -786,7 +790,6 @@ def gen_bead_coordinates(bead_list, bond_list, bondl=0.5, stat="DGC"):
 
     n_beads = len(bead_list)
     pos = np.zeros([n_beads, 3])
-    print(pos.shape)
     if isinstance(bondl, (int, float)):
         bondl = np.array([bondl] * n_beads)
     if isinstance(stat, str):
@@ -795,6 +798,9 @@ def gen_bead_coordinates(bead_list, bond_list, bondl=0.5, stat="DGC"):
         bl = bondl[ind]
         s = stat[ind]
 
+        # print(bond_list)
+        # print(b)
+        # print(type(b[0]))
         p0 = pos[b[0], :]
         if s.lower() == "dgc":
             stdev = bl / (3.0 ** 0.5)
@@ -843,6 +849,131 @@ def make_pdb(bead_names, bond_list, pos):
 
     traj = mdtraj.Trajectory(pos, t)
     return traj
+
+
+class MDTopology(serial.Serializable):
+    """Light container for storing chain definitions
+    chain_types points to either MDTraj objects, or (beadname,bond) data sets.
+    do I want to store coordinates here as well???
+
+    Args:
+        chain_defs (dict or list): if dict, is {chain_name:chain_def}; else is list of tuples [(chain_name,chain_def)...]
+    """
+
+    def __init__(self, chain_defs=[]):
+        self._serial_vars = ["chain_types"]
+        self.chain_types = OrderedDict()
+        self.update_chains(chain_defs)
+
+    def add_chain(self, chain_name, chain_def):
+        if chain_name in self.chain_types:
+            print("Overwriting chain definition for {}".format(chain_name))
+        if isinstance(chain_def, str) and chain_def.endswith("pdb"):
+            self.chain_types[chain_name] = mdtraj.load(chain_def)
+        elif isinstance(chain_def, collectionsABC.Mapping):
+            bead_names = chain_def["beads"]
+            bonds = chain_def["bonds"]
+            if "pos" in chain_def:
+                pos = np.array(chain_def["pos"])
+            else:
+                pos = gen_bead_coordinates(bead_names, bonds)
+            self.chain_types[chain_name] = make_pdb(bead_names, bonds, pos)
+        elif isinstance(
+            chain_def, collectionsABC.Sequence
+        ):  ##should be (bead_name, bonds) or (bead_name,bonds,pos) format
+            bead_names = chain_def[0]
+            bonds = chain_def[1]
+            if len(chain_def) < 3:
+                pos = np.array(chain_def[2])
+            else:
+                pos = gen_bead_coordinates(bead_names, bonds)
+            self.chain_types[chain_name] = make_pdb(bead_names, bonds, pos)
+        else:
+            raise ValueError("Un-parseable chain_def")
+
+    def update_chains(self, chain_defs):
+        if isinstance(chain_defs, collectionsABC.Mapping):
+            for chain_name, chain_def in chain_defs.items():
+                self.add_chain(chain_name, chain_def)
+        elif isinstance(chain_defs, collectionsABC.Iterable):
+            for chain_name, chain_def in chain_defs:
+                self.add_chain(chain_name, chain_def)
+        else:
+            raise TypeError(
+                "chain_def must be in (chain_name,chain_def) or {chain_name:chain_def} format"
+            )
+
+    # ===== Serializable Interface =====
+    def to_dict(self):
+        tmp = OrderedDict()
+        for chain_name, chain_def in self.chain_types.items():
+            df, bonds = chain_def.topology.to_dataframe()
+            bead_names = list(df["name"])
+            bonds = bonds[:, :2].astype(int).tolist()
+            pos = chain_def.xyz[0].tolist()
+            tmp[chain_name] = {"beads": bead_names, "bonds": bonds, "pos": pos}
+        return tmp
+
+    def from_dict(self, d):
+        for chain_name, chain_def in d.items():
+            self.add_chain(chain_name, chain_def)
+
+    def save(self, prefix="moldef"):
+        for chain_name, chain_def in self.chain_types.items():
+            df, bonds = chain_def.topology.to_dataframe()
+            if isinstance(prefix, str):
+                prefix = prefix
+            else:
+                prefix = "moldef"
+
+            chain_def.save("{}_{}.pdb".format(prefix, chain_name))
+            df.to_csv("{}_{}_topology.csv".format(prefix, chain_name))
+            np.savetxt(
+                "{}_{}_topology_bonds.dat".format(prefix, chain_name),
+                bonds.astype(int)[:, :2],
+                fmt="%i",
+            )
+
+        yamlhelper.save_dict("{}.yaml".format(prefix), self.to_dict())
+
+    def load(self, filename):
+        moldef = OrderedDict(yamlhelper.load(filename))
+        self.from_dict(moldef)
+
+
+def load(*args):
+    # Load things into FTSTop or MDtop
+    pdbtop = MDTopology()
+    pdbtop_ind = None
+    tops = []
+
+    for arg in args:
+        load_dict = False
+        if isinstance(arg, str):
+            if arg.endswith("pdb"):  # use filename for molname... not ideal
+                mol_name = os.path.splitext(arg)[0].split("/")[-1]
+                pdbtop.add_chain(mol_name, arg)
+                if pdbtop_ind is None:
+                    tops.append(pdbtop)
+            elif arg.endswith("yaml"):
+                moldef = yamlhelper.load(arg)
+                print(moldef)
+                load_dict = True
+        elif isinstance(arg, collectionsABC.Mapping):
+            moldef = arg
+            load_dict = True
+        else:
+            raise ValueError("Unloadable moldef {}".format(arg))
+        if load_dict:
+            if "arm_types" in moldef:  # should be FTS topology
+                tops.append(FTSTopology.init_from_dict(moldef))
+            else:  # should be MD topology
+                tops.append(MDTopology.init_from_dict(moldef))
+
+    if len(tops) == 1:
+        return tops[0]
+    else:
+        return tops
 
 
 # ===== Getting from PDB =====
