@@ -11,6 +11,9 @@ To do:
     A way to create topology from a full pdb (including all chains in the system)
         and recognize unique chain types. Could assign unique name for each chain to residue column of pdb
 
+    Residue-definition saving/reading in MDTop (maybe later). Mostly a convenience function for defining more complicated chains.
+    Other helpers for building FTS or PDB topologies. (e.g. point, linear, 1-gen comb)
+
 Save/Load:
 df = pandas.read_csv(args.top[0])
 bonds = np.loadtxt(args.top[1])
@@ -30,8 +33,6 @@ really, need to keep two chain defs formats
 should this be the master topolgy? or a *list* of topologies?
 
 store as graft_types? OR segment types, units, and grafts?
-
-everything else
 """
 from __future__ import print_function
 

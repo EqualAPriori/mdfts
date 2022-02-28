@@ -17,7 +17,7 @@ import mdfts.forcefield as ff
 from mdfts.utils import topology
 from mdfts.utils import parsify
 
-__all__ = []
+__all__ = [System]
 
 
 class System(serial.Serializable):
@@ -28,6 +28,7 @@ class System(serial.Serializable):
         contents=[],
         chain_aliases={},
         bead_aliases={},
+        temp=1.0,
     ):
         """Basic system container
 
@@ -37,6 +38,7 @@ class System(serial.Serializable):
             contents (list or tuple, optional): [(mol_name,mol_num)] pairs. Defaults to None.
             chain_aliases (dict, optional): in the form of {preferred_name:actual_name_in_def}. Defaults to None.
             bead_aliases (dict, optional): in the form of {preferred_name:actual_name_in_def}. Defaults to None.
+            temp (float,optional): Temperature. Defaults to 1.0. Should be relative to whatever scale is in force_field
         """
         self._serial_vars = [
             "paths",
@@ -45,6 +47,7 @@ class System(serial.Serializable):
             "contents",
             "chain_aliases",
             "bead_aliases",
+            "temp",
         ]
         self.paths = ["."]
         self.ff_files = []
@@ -53,6 +56,7 @@ class System(serial.Serializable):
         self.update_contents(contents)
         self.chain_aliases = chain_aliases
         self.bead_aliases = bead_aliases
+        self.T = T
 
     def add_force_field(self, ffdef):
         if isinstance(ffdef, str) and ffdef.endswith((".yml", ".yaml")):
