@@ -1,5 +1,3 @@
 from __future__ import absolute_import, division, print_function
 
-from . import utils
-from . import forcefield
-from . import system
+from .system import System
