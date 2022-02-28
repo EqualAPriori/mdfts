@@ -9,21 +9,21 @@ import copy
 import os
 
 # ===== Pathing =====
-def findpath(fname, paths):
+def findpath(fname, paths=None):
     """Return path to first instance of path/fname, from given list of paths
 
-  Args:
-      fname (str): file to search for
-      paths (str or list): paths to search through
+    Args:
+        fname (str): file to search for
+        paths (str or list): paths to search through
 
-  Raises:
-      ValueError: if file not found in paths
+    Raises:
+        ValueError: if file not found in paths
 
-  Returns:
-      str: first instance of path/fname
-  """
+    Returns:
+        str: first instance of path/fname
+    """
     if paths is None:
-        paths = ""
+        paths = "."
     if isinstance(paths, str):  # assume none of [\s,:;] in the path name
         paths = re.split(r"[\s,:;]+", paths)
     for path in paths:
@@ -37,7 +37,7 @@ def findpath(fname, paths):
 # ===== Atomic Parsing Functions =====
 def isfloat(value):
     """Check if value can be cast to float and is not a bool.
-    
+
     I.e. make sure we aren't casting booleans to floats.
 
     Args:
@@ -67,7 +67,7 @@ def isbool(value):
     """Check if value (string) is true/false
 
     Args:
-        value (str): 
+        value (str):
 
     Returns:
         bool: True if value.lower() in ['false','true','fixed','free'] else False
@@ -97,7 +97,7 @@ def tobool(value):
     Meant for parsing non-sequence elements, although sequences also go through.
 
     Args:
-        value (any): 
+        value (any):
 
     Returns:
         depends: True/False if `value` is `str` with 'true/false/fixed/free'. Otherwise, return `value`.
@@ -123,7 +123,7 @@ def tobool(value):
 
 
 def parse_beadtypes(entry, delim=";"):
-    """Parses an entry for a bead type filter. 
+    """Parses an entry for a bead type filter.
 
     Args:
         entry (str or list): of bead info
@@ -164,7 +164,7 @@ def parse_entry(entry, delim=";"):
 
         Different use cases (non-exhaustive):
         ```
-        entry = 
+        entry =
         - "name:somename"
         - "name;somename"
         - "paramname;float;bool"
@@ -188,7 +188,7 @@ def parse_entry(entry, delim=";"):
 
         >>> parsify.parse_entry(False)
         {'fixed': False}
-        
+
         >>> parsify.parse_entry([1.0,False])
         {'fixed': False, 'val': 1.0}
 
@@ -289,30 +289,30 @@ def parse_potential_entry(entry, nbody, store_dict=None, prefix=""):
 
     Note:
         This only does the initial shorthand conversions.
-        
+
         String format: one line entry of everything.
 
-        List: 
+        List:
 
-            MUST have format [ #body1, ..., #body-n, strings, lists, or dicts, per parameter ], 
-            
+            MUST have format [ #body1, ..., #body-n, strings, lists, or dicts, per parameter ],
+
             i.e. does not make sense to have a sublist with multiple interactions or [bead1, bead2, {dict of all parameters}]
-            
+
             i.e. if more than one dict, then must have all entries collected together!
-            
+
             expect each individual entry to be:
-            
+
             paramname;val
             [paramname, valuestring]
             [paramname, valuelist]
             [paramname, valuedict]
             {paramname: valuestring, valuelist, valuedict}
-            
+
         try to use storage container, i.e. if storage is Ordered (e.g. Yaml object), then hopefully the resulting output will be as well.
 
     Examples:
 
-        Vanilla example with string definition of potential 
+        Vanilla example with string definition of potential
         >>> parsify.parse_potential_entry('A B name;123 B;1.0;Fixed', 2, prefix='ljg')
         {'B': {'fixed': True, 'val': 1.0}, 'species': ['A', 'B'], 'name': 123.0}
 
@@ -391,4 +391,3 @@ def parse_potential_entry(entry, nbody, store_dict=None, prefix=""):
 
 
 # ===== Parse full force field definition, fill in missing values =====
-
