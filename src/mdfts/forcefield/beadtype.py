@@ -6,6 +6,8 @@ from __future__ import absolute_import, division, print_function
 
 from mdfts.utils import serial
 
+__all__ = ['BeadType']
+
 
 @serial.serialize(['name', 'smear_length', 'charge'])
 class BeadType(object):
@@ -19,9 +21,9 @@ class BeadType(object):
 
     def __init__(self, name, smear_length=1.0, charge=0.0):
         """Constructor for the BeadType class"""
-        self.name = name
-        self.smear_length = smear_length
-        self.charge = charge
+        self.name: str = name
+        self.smear_length: float = smear_length
+        self.charge: float = charge
 
     def __eq__(self, other):
         """Overrides default behavior and compares serialized attributes with
@@ -42,3 +44,6 @@ class BeadType(object):
 
     def __repr__(self):
         return 'BeadType: {}'.format(self.to_dict())
+
+    def __hash__(self):
+        return hash(self.name)

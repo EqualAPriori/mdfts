@@ -11,15 +11,15 @@ import inspect
 from .potential import _Potential
 from .potential_gaussian import Gaussian
 from .potential_harmonic_bond import HarmonicBond
+from .potential_harmonic_bond_no_offset import HarmonicBondNoOffset
 from .beadtype import BeadType
 from mdfts.utils import serial
 
 __all__ = ["load_from_sim_ff", "ForceField"]
 
-
-# collect all classes of potentials and put them into an dictionary
+# collect all classes of potentials and put them into a dictionary
 _POTENTIAL_TYPES = {}
-for key, val in locals().items():
+for key, val in dict(locals()).items():
     if inspect.isclass(val) and issubclass(val, _Potential):
         _POTENTIAL_TYPES[key] = val
 
@@ -62,11 +62,10 @@ def load_from_sim_ff(filepath, kT=1.0):
     # initialize ForceField instance
     ff = ForceField(kT=kT)
 
-    # open sim force field file
-    s = open(filepath, 'r').read()
-
-    # split string by potential
-    potential_strings = [">>> POTENTIAL" + p for p in s.split(">>> POTENTIAL")[1:]]
+    # open and read sim force field file
+    with open(filepath, 'r') as f:
+        # split string by potential
+        potential_strings = [">>> POTENTIAL" + p for p in f.read().split(">>> POTENTIAL")[1:]]
 
     # separate out potentials by type
     potential_specification_dict = defaultdict(list)
@@ -106,7 +105,7 @@ def load_from_sim_ff(filepath, kT=1.0):
             gaussian.from_sim_specification(g, kT=kT)
             ff.add_potential(gaussian)
 
-    # add all other interactions
+    # add other interactions
     for p_type, p_spec_list in potential_specification_dict.items():
         if p_type is not Gaussian:
             for p_spec in p_spec_list:

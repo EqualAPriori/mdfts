@@ -10,7 +10,6 @@ import mdfts.forcefield as ff
 class TestPotential(unittest.TestCase):
 
     def test_compare_bead_types(self):
-
         # create BeadTypes
         bead_type_A = ff.BeadType("A", 1.0, 1.0)
         bead_type_B = ff.BeadType("B", 2.0, -1.0)
@@ -20,8 +19,7 @@ class TestPotential(unittest.TestCase):
         potential2 = ff.potential._PairPotential(bead_type_B, bead_type_A)
         self.assertTrue(potential1.compare_bead_types(potential2))
 
-    def test_Gaussian(self):
-
+    def test_gaussian(self):
         # create BeadTypes
         bead_type_A = ff.BeadType("A", 1.0, 1.0)
         bead_type_B = ff.BeadType("B", 2.0, -1.0)
@@ -54,6 +52,28 @@ class TestPotential(unittest.TestCase):
         g1 = ff.Gaussian(bead_type_A, bead_type_B)
         g1.from_dict(g_dict)
         self.assertEqual(g_dict, g1.to_dict())
+
+    def test_harmonic_bond(self):
+        # create BeadTypes
+        bead_type_A = ff.BeadType("A", 1.0, 1.0)
+        bead_type_B = ff.BeadType("B", 2.0, -1.0)
+
+        # create HarmonicBond potential
+        harmonic_bond = ff.HarmonicBond(bead_type_A, bead_type_B)
+
+        # check values of parameters
+        self.assertEqual(1.0, harmonic_bond.K.value)
+        self.assertEqual(float, harmonic_bond.K.type)
+        self.assertEqual(False, harmonic_bond.K.fixed)
+        self.assertEqual(0.0, harmonic_bond.r0.value)
+        self.assertEqual(float, harmonic_bond.r0.type)
+        self.assertEqual(False, harmonic_bond.r0.fixed)
+
+        # test serialization
+        hb_dict = harmonic_bond.to_dict()
+        hb1 = ff.HarmonicBond(bead_type_A, bead_type_B)
+        hb1.from_dict(hb_dict)
+        self.assertEqual(hb_dict, hb1.to_dict())
 
 
 if __name__ == '__main__':
